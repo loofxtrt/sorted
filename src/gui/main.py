@@ -14,16 +14,21 @@ from ..utils.generic import generate_random_id, get_iso_datetime
 from ..managers.models import Collection, Vault, Entry, ModuleRegistry
 from ..modules.youtube.main import YouTubeModule
 from ..modules.youtube.api import extract_video_info, instance_ytdl
+from .. import logger
 
 
 # TODO: documentação
+# TODO: mais logging
 
 
 class Controller:
     def __init__(self, collection: Collection):
         self.collection = collection
+        logger.info(f'controller initialized for collection: {self.collection.name}')
 
     def write_entry(self, module: str, type: str, reference: str):
+        logger.info(f'writing entry: module={module}, type={type}, reference={reference}')
+
         entry = Entry(
             id=generate_random_id(),
             created_at=get_iso_datetime(),
@@ -32,22 +37,33 @@ class Controller:
             reference=reference
         )
         self.collection.write_entry(entry)
+        self.success(f'entry written: {entry.id}')
 
     def erase_entries(self, ids: list[str]):
+        logger.info(f'erasing {len(ids)} entr{"y" if len(ids) == 1 else "ies"}')
+
         for i in ids:
+            logger.debug(f'erasing entry: {i}')
             self.collection.erase_entry(i)
+
+        logger.info(success(f'erased {len(ids)} entr{"y" if len(ids) == 1 else "ies"}'))
 
 class MainWindow(QMainWindow):
     def __init__(self, scol: Path, root: Path):
+        logger.info(f'initializing main window with collection: {scol}')
+        logger.info(f'using vault root: {root}')
+
         super().__init__()
 
         # FIXME: TEMPORÁRIO
         self.module_registry = ModuleRegistry()
         self.module_registry.register(YouTubeModule(vault=Vault(root)))
+        logger.debug('youtube module registered')
     
         # dados e api
         self.scol = scol
         self.collection = Collection.from_file(self.scol)
+        logger.info(f'collection loaded: {self.collection.name}')
         
         self.controller = Controller(self.collection)
 
@@ -184,33 +200,48 @@ class MainWindow(QMainWindow):
         return tree
 
     def load_list_contents(self):
+        logger.debug(f'loading entries for collection: {self.collection.name}')
+
         self.qlist.clear()
         
         entries = self.collection.entries
+        logger.debug(f'found {len(entries)} entries')
         for e in entries.values():
+            logger.debug(f'building widget for entry: {e.id}')
+
             # tenta obter o módulo certo pra lidar com essa entry
             module = self.module_registry.get_for_entry(e)
             if not module:
+                logger.warning(f'no module found for entry: {e.id}')
                 continue
             
             # espera o result em vez de desenpacotar de uma vez
             # pra não quebrar com 'cannot unpack non-iterable NoneType object'
             result = module.build_entry_widget(e)
             if not result:
+                logger.warning(f'failed to build widget for entry: {e.id}')
                 continue
             item, widget = result
         
             self.qlist.addItem(item)
             self.qlist.setItemWidget(item, widget)
 
+            # FIXME: temporário
             print('adicionado')
+        
+        logger.debug('entry list loaded')
 
     def load_info_labels(self):
+        logger.debug(f'updating collection info: {self.collection.name}')
+        logger.debug(f'collection entry count: {self.collection.entry_count}')
+
         # atualiza os dados exibidos sobre a collection
         self.label_title.setText(self.collection.name)
         self.label_entry_count.setText(str(self.collection.entry_count))
     
     def refresh(self):
+        logger.debug(f'refreshing collection: {self.collection.name}')
+
         self.load_list_contents()
         self.load_info_labels()
 
@@ -221,8 +252,17 @@ class MainWindow(QMainWindow):
         return [i.data(Qt.ItemDataRole.UserRole) for i in items]
 
     def action_remove(self):
-        self.controller.erase_entries(self.get_selected_ids())
+        ids = self.get_selected_ids()
+        if not ids:
+            logger.warning('remove requested with no entries selected')
+            return
+
+        logger.info(f'removing {len(ids)} selected entries')
+
+        self.controller.erase_entries(ids)
         self.refresh()
+
+        logger.success('entries removed and collection refreshed')
     
     # TODO
     def action_move(self):
@@ -256,10 +296,16 @@ class MainWindow(QMainWindow):
         # obtém o conteúdo do input de texto e adiciona na collection
         value = self.input_insert.text()
         if not value:
+            logger.warning('insert requested with empty input')
             return
-        
+            
         # FIXME: TEMPORÁRIO
+        logger.info(f'extracting video information from input: {value}')
         info = extract_video_info(value, instance_ytdl())
+
+        if not info:
+            logger.error('failed to extract video information')
+            return
         
         self.controller.write_entry(module='youtube', type='video', reference=info.get('id'))
         self.refresh()
@@ -271,9 +317,13 @@ class MainWindow(QMainWindow):
 
         dest = model.filePath(index)
         dest = Path(dest)
+
+        logger.debug(f'file tree item selected: {dest}')
         
         #if not dest or not is_collection_valid(dest):
         #    return
+
+        logger.info(f'changing collection: {self.scol} to {dest}')
 
         self.scol = dest
         self.collection = Collection.from_file(self.scol)
@@ -281,12 +331,15 @@ class MainWindow(QMainWindow):
         #cache.write_last_collection(dest)
 
         self.refresh()
+
+        logger.success(f'collection changed to: {dest}')
     
     # TODO
     def action_change_root(self):
         dest = self.input_root.text()
         if not Path(dest).is_dir():
             return
+        
         self.root = dest
         self.model.setRootPath(self.root)
         self.file_tree.setRootIndex(self.model.index(self.root))
@@ -323,6 +376,9 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication([])
 
+    # FIXME: nao tem erro se o caminho é inválido
+    # FIXME: consertar esse path hardcoded
+    # FIXME: temporário
     file = Path('/mnt/seagate/workspace/coding/experimental/exp-sorted-py/testei/eumerlyteste.json')
     #file = None
 
