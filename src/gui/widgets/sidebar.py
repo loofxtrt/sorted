@@ -81,29 +81,32 @@ class Inspector(QWidget):
         self.label_created_at.setText(entry.created_at)
         # TODO: fields
 
-        self.form.
+        self.form.register_field('title', 'lorem ipsum')
 
 class FieldsForm(QWidget):
     # TODO: documentação
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        layout = QFormLayout(self)
+        self.form_layout = QFormLayout(self)
 
     # TODO: suporte à sub-dict?
     def register_field(
-        self, layout: QFormLayout, label_text: str,
-        data_type: type[str] | type[bool] | type[numbers.Number] | None = None
+        self,
+        label_text: str,
+        data: type[str] | type[bool] | type[numbers.Number] | None = None
     ) -> QLineEdit | QDoubleSpinBox | QCheckBox | None:
-        if isinstance(data_type, str):
-            input = QLineEdit()
-        elif isinstance(data_type, bool):
-            input = QCheckBox()
-        elif isinstance(data_type, numbers.Number):
-            input = QDoubleSpinBox()
-        else:
-            input = None
+        input = QLineEdit()
 
-        layout.addRow(label_text, input)
+        if isinstance(data, bool):
+            input = QCheckBox()
+            input.setChecked(data)
+        elif isinstance(data, numbers.Number):
+            input = QDoubleSpinBox()
+            input.setValue(data)
+        else:
+            input.setText(str(data))
+
+        self.form_layout.addRow(label_text, input)
 
         return input
