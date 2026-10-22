@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFileSystemModel, QFont, QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize
 
+from src.gui.widgets.header import Header
 from src.gui.widgets.sidebar import Sidebar
 from src.modules.local.main import LocalModule
 
@@ -59,6 +60,8 @@ class MainWindow(QMainWindow):
 
         super().__init__()
 
+        self.root = root
+
         # FIXME: TEMPORÁRIO
         self.module_registry = ModuleRegistry()
         # self.module_registry.register(YouTubeModule(vault=Vault(root)))
@@ -71,6 +74,8 @@ class MainWindow(QMainWindow):
         logger.info(f'collection loaded: {self.collection.name}')
 
         self.controller = Controller(self.collection)
+
+        self.setup()
 
         # inputs
         self.button_insert = QPushButton('Insert')
@@ -101,16 +106,8 @@ class MainWindow(QMainWindow):
 
         self.load_info_labels()
 
-        # contents
-        self.header = QHBoxLayout()
-        self.header.addLayout(self.compose_info_panel())
-        self.header.addLayout(self.compose_control_panel())
-
-        self.qlist = self.compose_list_widget()
-        self.load_list_contents() # carregar o conteúdo pela primeira vez
-
         # file tree
-        self.root = str(root) # carregar o último root que foi usado
+        # self.root = str(root) # carregar o último root que foi usado
         self.button_root = QPushButton('Change vault')
         self.button_root.clicked.connect(self.action_pick_root)
 
@@ -121,18 +118,6 @@ class MainWindow(QMainWindow):
         self.button_create = QPushButton('New collection')
         self.button_create.clicked.connect(self.action_create_collection)
 
-        # definir o widget central
-        central = QWidget()
-        self.setCentralWidget(central)
-
-        # definir como os contents vão ser exibidos
-        # na ordem vertical, primeiro o control panel, depois a table etc.
-        widget_contents = QWidget()
-        contents = QVBoxLayout(widget_contents)
-
-        contents.addLayout(self.header)
-        contents.addWidget(self.qlist)
-
         # widget_sidebar = QWidget()
         # widget_sidebar.setMaximumWidth(350) # é definido no widget inteiro, não só na file tree
         # sidebar = QVBoxLayout(widget_sidebar)
@@ -141,54 +126,37 @@ class MainWindow(QMainWindow):
         # sidebar.addWidget(self.button_create)
         # sidebar.addWidget(self.button_root)
 
-        # layout, definir o que vai estar na horizontal
-        # ex: sidebar, file tree, contents etc.
-        layout = QHBoxLayout(central)
-        # layout.addWidget(widget_sidebar)
-        layout.addWidget(widget_contents)
+    def setup(self):
+        # definir como os contents vão ser exibidos
+        # na ordem vertical, primeiro o barra do topo, depois a lista etc.
+        # widget_contents = QWidget()
+        # contents = QVBoxLayout(widget_contents)
 
-        self.sidebar = Sidebar(parent=layout, root=root)
+        # LAYOUT
+        ## vertical. ex: header -> central logo embaixo
+        contents = QWidget()
+        contents_layout = (QVBoxLayout(contents))
 
-    def compose_info_panel(self) -> QVBoxLayout:
-        # título fica em cima
-        vbox_info = QVBoxLayout()
-        vbox_info.addWidget(self.label_title)
+        self.header = Header()
+        contents_layout.addWidget(self.header)
 
-        # demais informações ficam em baixo
-        hbox_sub_info = QHBoxLayout()
-        vbox_info.addLayout(hbox_sub_info)
+        ### lista
+        self.qlist = QListWidget()
+        self.qlist.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
-        hbox_sub_info.addWidget(self.label_entry_count)
-        hbox_sub_info.addWidget(self.label_type)
+        contents_layout.addWidget(self.qlist, 1)
 
-        return vbox_info
+        self.load_list_contents() # carregar o conteúdo pela primeira vez
 
-    def compose_control_panel(self) -> QVBoxLayout:
-        # input de texto + botão pra inserir novas entradas
-        vbox_control_panel = QVBoxLayout()
+        ## horizontal. ex: sidebar -> conteúdo
+        central = QWidget()
+        central_layout = QHBoxLayout(central)
+        self.setCentralWidget(central)
 
-        hbox_insert = QHBoxLayout()
-        hbox_insert.addWidget(self.combo_box_type)
-        hbox_insert.addWidget(self.input_insert)
-        hbox_insert.addWidget(self.button_insert)
+        self.sidebar = Sidebar(root=self.root)
+        central_layout.addWidget(self.sidebar)
 
-        vbox_control_panel.addLayout(hbox_insert)
-
-        # row de ações que podem ser tomadas pra cada entrada
-        hbox_actions = QHBoxLayout()
-
-        for b in [self.button_remove, self.button_move, self.button_copy]:
-            hbox_actions.addWidget(b)
-
-        vbox_control_panel.addLayout(hbox_actions)
-
-        return vbox_control_panel
-
-    def compose_list_widget(self) -> QListWidget:
-        qlist = QListWidget()
-        qlist.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-
-        return qlist
+        central_layout.addWidget(contents, 1)
 
 #     def compose_file_tree(self) -> QTreeWidget:
 #         self.model = QFileSystemModel()
