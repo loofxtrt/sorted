@@ -1,4 +1,6 @@
+from cProfile import label
 from pathlib import Path
+from tkinter import Label
 
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow,
@@ -226,11 +228,20 @@ class MainWindow(QMainWindow):
                 logger.warning(f'failed to build widget for entry: {e.id}')
                 continue
 
+            # criar o elemento visual da entry
+            # TODO: documentação
+            container = QWidget()
+            container_layout = QVBoxLayout()
+            container.setLayout(container_layout)
+            container_layout.addWidget(result)
+            container_layout.addWidget(QLabel(e.id))
+
             item = QListWidgetItem()
             item.setData(Qt.ItemDataRole.UserRole, e.id)
-            item.setSizeHint(result.sizeHint())
+            item.setSizeHint(container.sizeHint())
+
             self.qlist.addItem(item)
-            self.qlist.setItemWidget(item, result)
+            self.qlist.setItemWidget(item, container)
 
             # FIXME: temporário
             print('adicionado')

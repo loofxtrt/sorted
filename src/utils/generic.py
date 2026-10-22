@@ -1,7 +1,10 @@
 from pathlib import Path
 from datetime import datetime
+from PIL import Image
 import random
 import string
+
+from rich.syntax import SyntaxPosition
 
 from .. import logger
 
@@ -16,7 +19,7 @@ def ensure_directory(directory: Path):
         directory:
             caminho do diretório que deve ser verificado/criado
     """
-    
+
     directory.mkdir(exist_ok=True, parents=True)
 
 def truncate_text(text: str, max_characters: int):
@@ -43,7 +46,7 @@ def get_iso_datetime():
     """
     retorna a data e hora atual baseada no formato iso 8601
     """
-    
+
     # yyyy-mm-ddThh:mm:ss. o timespec é pra não incluir microsegundos
     return datetime.now().isoformat(timespec='seconds')
 
@@ -86,7 +89,7 @@ def normalize_json_file(path: Path | str):
     normalized = str(path)
     if not normalized.endswith('.json'):
         normalized += '.json'
-    
+
     # transformar o valor normalizado de volta em path
     # caso esse tenha sido o formato passado pra essa função inicialmente
     # ela deve apenas normalizar, não mudar o tipo
@@ -94,3 +97,16 @@ def normalize_json_file(path: Path | str):
         normalized = Path(normalized)
 
     return normalized
+
+def is_image(file: Path) -> bool:
+    """
+    verifica se um arquivo é uma imagem válida
+    """
+
+    try:
+        with Image.open(file) as f:
+            f.verify()
+
+        return True
+    except (IOError, SyntaxError):
+        return False
