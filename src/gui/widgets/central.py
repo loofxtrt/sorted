@@ -8,6 +8,7 @@ class Central(QWidget):
     def __init__(self, root: Path, parent=None) -> None:
         super().__init__(parent)
 
+        # horizontal. ex: sidebar -> conteúdo
         layout = QHBoxLayout(self)
 
         self.sidebar = Sidebar(root=root)
@@ -28,25 +29,6 @@ class Central(QWidget):
 
     def compose_contents(self):
         self.qlist = QListWidget()
-        self.qlist.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.qlist.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection) # poder selecionar múltiplos itens
 
         self.contents_layout.addWidget(self.qlist, 1)
-
-    # LAYOUT
-    ## vertical. ex: header -> central logo embaixo
-
-
-    ### lista
-
-
-#
-#
-#     self.load_list_contents() # carregar o conteúdo pela primeira vez
-#
-#     ## horizontal. ex: sidebar -> conteúdo
-#     central = QWidget()
-#     central_layout = QHBoxLayout(central)
-#     self.setCentralWidget(central)
-#
-#
-#     central_layout.addWidget(self.sidebar)

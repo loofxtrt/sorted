@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PyQt6.QtWidgets import QWidget, QTabWidget, QHBoxLayout, QTreeView
+from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
 from PyQt6.QtGui import QFileSystemModel
 
 class Sidebar(QWidget):
@@ -33,3 +33,22 @@ class Sidebar(QWidget):
         tree.hideColumn(3)
 
         return tree
+
+    def compose_inspector(self) -> QWidget:
+        def _register_value_label(placeholder: str):
+            """
+            registra um label pra mostrar uma informação no inspector e retorna ele
+            """
+
+            label = QLabel(placeholder)
+            layout.addWidget(label)
+
+            return label
+
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+
+        label_title = _register_value_label('title')
+        label_type = _register_value_label('type')
+        label_id = _register_value_label('id')
+        label_fields = _register_value_label('fields')
