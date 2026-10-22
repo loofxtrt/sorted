@@ -3,7 +3,7 @@ from pathlib import Path
 
 from ..utils.generic import ensure_directory, normalize_json_file
 from ..utils import json_io
-from .cache import VaultCache
+# from . import VaultCache
 
 
 class Vault:
@@ -32,8 +32,8 @@ class Vault:
         self.context = self.root / '.sorted'
         ensure_directory(self.context)
 
-        self.cache = VaultCache(self.context)
-    
+        # self.cache = VaultCache(self.context)
+
     @property
     def modules_dir(self):
         """
@@ -45,27 +45,27 @@ class Vault:
         ensure_directory(path)
 
         return path
-    
-    # TODO: separar um cache pra cada plugin pra n precisar de um dir extra de cache
-    @property
-    def cache_dir(self):
-        """
-        retorna o diretório de cache do vault
-        cria o diretório caso ainda não exista
-        """
 
-        path = self.context / 'cache'
-        ensure_directory(path)
-        
-        return path
-    
-    @property
-    def cache_file(self):
-        """
-        retorna o arquivo de cache principal do vault
-        """
-        
-        return self.context / normalize_json_file('cache')
+    # TODO: separar um cache pra cada plugin pra n precisar de um dir extra de cache
+#     @property
+#     def cache_dir(self):
+#         """
+#         retorna o diretório de cache do vault
+#         cria o diretório caso ainda não exista
+#         """
+#
+#         path = self.context / 'cache'
+#         ensure_directory(path)
+#
+#         return path
+#
+#     @property
+#     def cache_file(self):
+#         """
+#         retorna o arquivo de cache principal do vault
+#         """
+#
+#         return self.context / normalize_json_file('cache')
 
 
 @dataclass
@@ -77,7 +77,7 @@ class Entry:
     id: str
     created_at: str
     module: str
-    type: str
+    fields: dict
     reference: str
 
     @classmethod
@@ -86,17 +86,17 @@ class Entry:
             id=data.get('id'),
             created_at=data.get('created_at'),
             module=data.get('module'),
-            type=data.get('type'),
-            reference=data.get('reference')
+            reference=data.get('reference'),
+            fields=data.get('fields')
         )
-    
+
     def to_dict(self):
         return {
             'id': self.id,
             'created_at': self.created_at,
             'module': self.module,
-            'type': self.type,
-            'reference': self.reference
+            'reference': self.reference,
+            'fields': self.fields
         }
 
 
@@ -119,7 +119,7 @@ class Collection:
         retorna o nome da collection
         isso é sempre o nome do arquivo sem a extensão
         """
-        
+
         return self.file.stem
 
     @property
@@ -139,7 +139,7 @@ class Collection:
             data:
                 dicionário contendo os dados da collection e suas entries
         """
-        
+
         entries = { }
         for e in data.get('entries', {}).values():
             entry = Entry.from_dict(e)
@@ -164,7 +164,7 @@ class Collection:
             'created_at': self.created_at,
             'entries': entries
         }
-    
+
     @classmethod
     def from_file(cls, file: Path):
         """
@@ -175,18 +175,18 @@ class Collection:
             file:
                 caminho do arquivo de collection
         """
-        
+
         # TODO: validação mais rigorosa com base na chave type
         data = json_io.read_json(file)
         return cls.from_dict(data, file)
-    
+
     def write_entry(self, entry: Entry):
         # atualiza a memória primeiro, inserindo a entry nova
         self.entries[entry.id] = entry
 
         # converte os dados já atualizados e reescreve eles
         json_io.write_json(self.file, self.to_dict())
-    
+
     def erase_entry(self, entry_id: str):
         self.entries.pop(entry_id, None)
         json_io.write_json(self.file, self.to_dict())
@@ -228,10 +228,10 @@ class Module:
 
         self.root = self.vault.modules_dir / id
         ensure_directory(self.root)
-        
+
         self.manifest_file = self.root / normalize_json_file('manifest')
         self.manifest_data = self.load_manifest()
-    
+
     def load_manifest(self):
         """
         carrega o manifesto do plugin
@@ -245,16 +245,16 @@ class Module:
 
         if not self.manifest_file.is_file():
             return {}
-    
+
         return json_io.read_json(self.manifest_file)
-    
+
     # TODO
     def build_entry_widget(self, entry: Entry):
         pass
-    
+
     def can_handle_entry(self, entry: Entry):
         pass
-    
+
     def receive_url(self, url: str):
         pass
 
@@ -262,10 +262,10 @@ class Module:
 class ModuleRegistry:
     def __init__(self):
         self.modules: list[Module] = []
-    
+
     def register(self, module):
         self.modules.append(module)
-    
+
     def get_for_entry(self, entry: Entry):
         for m in self.modules:
             if m.can_handle_entry(entry):

@@ -59,12 +59,12 @@ class MainWindow(QMainWindow):
         self.module_registry = ModuleRegistry()
         self.module_registry.register(YouTubeModule(vault=Vault(root)))
         logger.debug('youtube module registered')
-    
+
         # dados e api
         self.scol = scol
         self.collection = Collection.from_file(self.scol)
         logger.info(f'collection loaded: {self.collection.name}')
-        
+
         self.controller = Controller(self.collection)
 
         # inputs
@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         #self.combo_box_type.setCurrentText('youtube.video')
 
         self.input_insert = QLineEdit()
-        
+
         # info
         self.label_title = QLabel()
         self.label_entry_count = QLabel()
@@ -108,7 +108,7 @@ class MainWindow(QMainWindow):
         self.root = str(root) # carregar o último root que foi usado
         self.button_root = QPushButton('Change vault')
         self.button_root.clicked.connect(self.action_pick_root)
-        
+
         self.model = None # tem que ser self pq é importante pra operações com a file tree
         self.file_tree = self.compose_file_tree()
         self.file_tree.clicked.connect(self.action_change_collection)
@@ -146,16 +146,16 @@ class MainWindow(QMainWindow):
         # título fica em cima
         vbox_info = QVBoxLayout()
         vbox_info.addWidget(self.label_title)
-        
+
         # demais informações ficam em baixo
         hbox_sub_info = QHBoxLayout()
         vbox_info.addLayout(hbox_sub_info)
-        
+
         hbox_sub_info.addWidget(self.label_entry_count)
         hbox_sub_info.addWidget(self.label_type)
 
         return vbox_info
-    
+
     def compose_control_panel(self) -> QVBoxLayout:
         # input de texto + botão pra inserir novas entradas
         vbox_control_panel = QVBoxLayout()
@@ -172,9 +172,9 @@ class MainWindow(QMainWindow):
 
         for b in [self.button_remove, self.button_move, self.button_copy]:
             hbox_actions.addWidget(b)
-        
+
         vbox_control_panel.addLayout(hbox_actions)
-        
+
         return vbox_control_panel
 
     def compose_list_widget(self) -> QListWidget:
@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
         logger.debug(f'loading entries for collection: {self.collection.name}')
 
         self.qlist.clear()
-        
+
         entries = self.collection.entries
         logger.debug(f'found {len(entries)} entries')
         for e in entries.values():
@@ -214,7 +214,7 @@ class MainWindow(QMainWindow):
             if not module:
                 logger.warning(f'no module found for entry: {e.id}')
                 continue
-            
+
             # espera o result em vez de desenpacotar de uma vez
             # pra não quebrar com 'cannot unpack non-iterable NoneType object'
             result = module.build_entry_widget(e)
@@ -222,13 +222,13 @@ class MainWindow(QMainWindow):
                 logger.warning(f'failed to build widget for entry: {e.id}')
                 continue
             item, widget = result
-        
+
             self.qlist.addItem(item)
             self.qlist.setItemWidget(item, widget)
 
             # FIXME: temporário
             print('adicionado')
-        
+
         logger.debug('entry list loaded')
 
     def load_info_labels(self):
@@ -238,7 +238,7 @@ class MainWindow(QMainWindow):
         # atualiza os dados exibidos sobre a collection
         self.label_title.setText(self.collection.name)
         self.label_entry_count.setText(str(self.collection.entry_count))
-    
+
     def refresh(self):
         logger.debug(f'refreshing collection: {self.collection.name}')
 
@@ -263,7 +263,7 @@ class MainWindow(QMainWindow):
         self.refresh()
 
         logger.success('entries removed and collection refreshed')
-    
+
     # TODO
     def action_move(self):
         # promptar o caminho novo pra entrada
@@ -289,7 +289,7 @@ class MainWindow(QMainWindow):
                     dest_collection=dest,
                     entry_id=i
                 )
-            
+
             self.load_table_contents()
 
     def action_insert(self):
@@ -298,7 +298,7 @@ class MainWindow(QMainWindow):
         if not value:
             logger.warning('insert requested with empty input')
             return
-            
+
         # FIXME: TEMPORÁRIO
         logger.info(f'extracting video information from input: {value}')
         info = extract_video_info(value, instance_ytdl())
@@ -306,7 +306,7 @@ class MainWindow(QMainWindow):
         if not info:
             logger.error('failed to extract video information')
             return
-        
+
         self.controller.write_entry(module='youtube', type='video', reference=info.get('id'))
         self.refresh()
 
@@ -319,7 +319,7 @@ class MainWindow(QMainWindow):
         dest = Path(dest)
 
         logger.debug(f'file tree item selected: {dest}')
-        
+
         #if not dest or not is_collection_valid(dest):
         #    return
 
@@ -333,13 +333,13 @@ class MainWindow(QMainWindow):
         self.refresh()
 
         logger.success(f'collection changed to: {dest}')
-    
+
     # TODO
     def action_change_root(self):
         dest = self.input_root.text()
         if not Path(dest).is_dir():
             return
-        
+
         self.root = dest
         self.model.setRootPath(self.root)
         self.file_tree.setRootIndex(self.model.index(self.root))
@@ -356,9 +356,9 @@ class MainWindow(QMainWindow):
             self.root = root
             self.model.setRootPath(root)
             self.file_tree.setRootIndex(self.model.index(root))
-        
-        cache.write_last_root(Path(root))
-    
+
+        # cache.write_last_root(Path(root))
+
     def action_create_collection(self):
         text, ok = QInputDialog.getText(
             self,

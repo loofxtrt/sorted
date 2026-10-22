@@ -19,7 +19,8 @@ def message_formatter(message, level: str = 'info', mode: str = 'panel', shorten
         'debug': 'dbug',
         'error': 'erro',
         'critical': 'crit',
-        'success': 'okay'
+        'success': 'okay',
+        'unknown': 'unkw'
     }
 
     # formatar o indicador de level
@@ -28,11 +29,11 @@ def message_formatter(message, level: str = 'info', mode: str = 'panel', shorten
 
     # usa o level passado pra essa função pra obter a cor do indicador dele
     color = lvl_colors.get(level, 'blue')
-    
+
     # se especificado, também encurta o nome do level
     if shorten:
-        level = lvl_shorts.get(level)
-    
+        level = lvl_shorts.get(level, 'unkw')
+
     # na hora de imprimir, sempre mostra o level em uppercase
     level = level.upper()
 
@@ -44,7 +45,7 @@ def message_formatter(message, level: str = 'info', mode: str = 'panel', shorten
 
     # se a mensagem tiver mais de uma linha, tratar essas linhas extras
     lines = message.splitlines()
-    
+
     if len(lines) > 0:
         # adicionada separada pra não ter quebra de linha extra no começo
         formatted.append(lines[0])
@@ -74,7 +75,7 @@ def message_formatter(message, level: str = 'info', mode: str = 'panel', shorten
         # além de adicionar uma separação entre o level e o texto
         handle_color = color + ' bold'
         level_display = Text(level, handle_color)
-        
+
         text = Text()
         text.append(level_display)
         text.append(' | ')
