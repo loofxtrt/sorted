@@ -81,6 +81,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central)
         self.load_list_contents() # carregar o conteúdo pela primeira vez
 
+
+        self.central.qlist.currentItemChanged.connect(self.central.sidebar.inspector.open_entry)
+
+
         # inputs
         self.button_insert = QPushButton('Insert')
         self.button_remove = QPushButton('Remove')
@@ -203,18 +207,19 @@ class MainWindow(QMainWindow):
 
             # criar o elemento visual da entry
             # TODO: documentação
-            container = QWidget()
-            container_layout = QVBoxLayout()
-            container.setLayout(container_layout)
-            container_layout.addWidget(result)
-            container_layout.addWidget(QLabel(e.id))
+            # container = QWidget()
+            # container_layout = QVBoxLayout()
+            # container.setLayout(container_layout)
+            # container_layout.addWidget(result)
+            # container_layout.addWidget(QLabel(e.id))
 
-            item = QListWidgetItem()
-            item.setData(Qt.ItemDataRole.UserRole, e.id)
-            item.setSizeHint(container.sizeHint())
+            # item = QListWidgetItem()
+            # item.setData(Qt.ItemDataRole.UserRole, e.id)
+            # item.setSizeHint(container.sizeHint())
 
-            self.central.qlist.addItem(item)
-            self.central.qlist.setItemWidget(item, container)
+            # self.central.qlist.addItem(item)
+            # self.central.qlist.setItemWidget(item, container)
+            self.central.qlist.insert(userrole=e.id, entry_widget=result)
 
             # FIXME: temporário
             print('adicionado')
@@ -235,14 +240,14 @@ class MainWindow(QMainWindow):
         self.load_list_contents()
         self.load_info_labels()
 
-    def get_selected_ids(self):
-        # espera que todo item tenha um userrole (valor oculto)
-        # que indique qual entry ele representa
-        items = self.central.qlist.selectedItems()
-        return [i.data(Qt.ItemDataRole.UserRole) for i in items]
+    # def get_selected_ids(self):
+    #     # espera que todo item tenha um userrole (valor oculto)
+    #     # que indique qual entry ele representa
+    #     items = self.central.qlist.selectedItems()
+    #     return [i.data(Qt.ItemDataRole.UserRole) for i in items]
 
     def action_remove(self):
-        ids = self.get_selected_ids()
+        ids = self.central.qlist.get_selected_ids()
         if not ids:
             logger.warning('remove requested with no entries selected')
             return

@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel
 
 class Header(QWidget):
+    # TODO: documentação
     def __init__(self, parent=None):
         super().__init__(parent)
 

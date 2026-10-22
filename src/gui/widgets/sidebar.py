@@ -3,7 +3,10 @@ from pathlib import Path
 from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
 from PyQt6.QtGui import QFileSystemModel
 
+from src.managers.models import Entry
+
 class Sidebar(QWidget):
+    # TODO: documentação
     def __init__(self, root: Path, parent=None) -> None:
         super().__init__(parent)
 
@@ -22,6 +25,7 @@ class Sidebar(QWidget):
         layout.addWidget(self.inspector)
 
     def compose_file_tree(self, root: str) -> QTreeView:
+        # TODO: documentação
         self.model = QFileSystemModel()
         self.model.setRootPath(root)
 
@@ -38,6 +42,7 @@ class Sidebar(QWidget):
         return tree
 
 class Inspector(QWidget):
+    # TODO: documentação
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
@@ -46,6 +51,7 @@ class Inspector(QWidget):
         self.label_title = self.register_value_label('title', layout)
         self.label_type = self.register_value_label('type', layout)
         self.label_id = self.register_value_label('id', layout)
+        self.label_created_at = self.register_value_label('created at', layout)
         self.label_fields = self.register_value_label('fields', layout)
 
     def register_value_label(self, placeholder: str, layout: QHBoxLayout | QVBoxLayout):
@@ -64,3 +70,9 @@ class Inspector(QWidget):
         layout.addWidget(label)
 
         return label
+
+    def open_entry(self, entry: Entry):
+        self.label_id.setText(entry.id)
+        self.label_type.setText(entry.type)
+        self.label_created_at.setText(entry.created_at)
+        # TODO: fields
