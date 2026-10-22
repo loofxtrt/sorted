@@ -1,6 +1,7 @@
+import numbers
 from pathlib import Path
 
-from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
+from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QLabel, QLineEdit, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
 from PyQt6.QtGui import QFileSystemModel
 
 from src.managers.models import Entry
@@ -54,6 +55,9 @@ class Inspector(QWidget):
         self.label_created_at = self.register_value_label('created at', layout)
         self.label_fields = self.register_value_label('fields', layout)
 
+        self.form = FieldsForm()
+        layout.addWidget(self.form)
+
     def register_value_label(self, placeholder: str, layout: QHBoxLayout | QVBoxLayout):
         """
         registra um label pra mostrar uma informação no inspector e retorna ele
@@ -76,3 +80,30 @@ class Inspector(QWidget):
         self.label_type.setText(entry.type)
         self.label_created_at.setText(entry.created_at)
         # TODO: fields
+
+        self.form.
+
+class FieldsForm(QWidget):
+    # TODO: documentação
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        layout = QFormLayout(self)
+
+    # TODO: suporte à sub-dict?
+    def register_field(
+        self, layout: QFormLayout, label_text: str,
+        data_type: type[str] | type[bool] | type[numbers.Number] | None = None
+    ) -> QLineEdit | QDoubleSpinBox | QCheckBox | None:
+        if isinstance(data_type, str):
+            input = QLineEdit()
+        elif isinstance(data_type, bool):
+            input = QCheckBox()
+        elif isinstance(data_type, numbers.Number):
+            input = QDoubleSpinBox()
+        else:
+            input = None
+
+        layout.addRow(label_text, input)
+
+        return input
