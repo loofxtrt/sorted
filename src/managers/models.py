@@ -76,7 +76,8 @@ class Entry:
 
     id: str
     created_at: str
-    module: str
+    module: str # TODO: talvez teste de remoção completa disso
+    type: str
     fields: dict
     reference: str
 
@@ -86,8 +87,9 @@ class Entry:
             id=data.get('id'),
             created_at=data.get('created_at'),
             module=data.get('module'),
+            type=data.get('type'),
             reference=data.get('reference'),
-            fields=data.get('fields')
+            fields=data.get('fields', {})
         )
 
     def to_dict(self):
@@ -95,6 +97,7 @@ class Entry:
             'id': self.id,
             'created_at': self.created_at,
             'module': self.module,
+            'type': self.type,
             'reference': self.reference,
             'fields': self.fields
         }
@@ -213,9 +216,12 @@ class Module:
 
         vault:
             instância do Vault onde esse plugin está rodando
+
+        supported_types:
+            tipos de entries que esse módulo lida com
     """
 
-    def __init__(self, id: str, vault: Vault):
+    def __init__(self, id: str, vault: Vault, supported_types: list):
         """
         inicializa o plugin e garante que a estrutura dele existe no disco
 
@@ -225,6 +231,7 @@ class Module:
 
         self.id = id
         self.vault = vault
+        self.supported_types = supported_types
 
         self.root = self.vault.modules_dir / id
         ensure_directory(self.root)
@@ -253,10 +260,10 @@ class Module:
         pass
 
     def can_handle_entry(self, entry: Entry):
-        pass
-
-    def receive_url(self, url: str):
-        pass
+        return entry.type in self.supported_types
+#
+#     def receive_url(self, url: str):
+#         pass
 
 # TODO: documentação
 class ModuleRegistry:
@@ -266,8 +273,9 @@ class ModuleRegistry:
     def register(self, module):
         self.modules.append(module)
 
-    def get_for_entry(self, entry: Entry):
+    def get_entry_compatible_module(self, entry: Entry):
         for m in self.modules:
             if m.can_handle_entry(entry):
                 return m
+
         return None

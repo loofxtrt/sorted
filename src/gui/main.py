@@ -10,6 +10,8 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFileSystemModel, QFont, QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize
 
+from src.modules.local.main import LocalModule
+
 from ..utils.generic import generate_random_id, get_iso_datetime
 from ..managers.models import Collection, Vault, Entry, ModuleRegistry
 from ..modules.youtube.main import YouTubeModule
@@ -34,10 +36,11 @@ class Controller:
             created_at=get_iso_datetime(),
             module=module,
             type=type,
+            fields={},
             reference=reference
         )
         self.collection.write_entry(entry)
-        self.success(f'entry written: {entry.id}')
+        logger.success(f'entry written: {entry.id}')
 
     def erase_entries(self, ids: list[str]):
         logger.info(f'erasing {len(ids)} entr{"y" if len(ids) == 1 else "ies"}')
@@ -46,7 +49,7 @@ class Controller:
             logger.debug(f'erasing entry: {i}')
             self.collection.erase_entry(i)
 
-        logger.info(success(f'erased {len(ids)} entr{"y" if len(ids) == 1 else "ies"}'))
+        logger.info(f'erased {len(ids)} entr{"y" if len(ids) == 1 else "ies"}')
 
 class MainWindow(QMainWindow):
     def __init__(self, scol: Path, root: Path):
@@ -57,10 +60,11 @@ class MainWindow(QMainWindow):
 
         # FIXME: TEMPORÁRIO
         self.module_registry = ModuleRegistry()
-        self.module_registry.register(YouTubeModule(vault=Vault(root)))
-        logger.debug('youtube module registered')
+        # self.module_registry.register(YouTubeModule(vault=Vault(root)))
+        self.module_registry.register(LocalModule(vault=Vault(root)))
 
         # dados e api
+        # TODO: .sort em vez de .scol?
         self.scol = scol
         self.collection = Collection.from_file(self.scol)
         logger.info(f'collection loaded: {self.collection.name}')
@@ -75,7 +79,7 @@ class MainWindow(QMainWindow):
         self.button_edit = QPushButton('Edit')
 
         self.button_remove.clicked.connect(self.action_remove)
-        self.button_insert.clicked.connect(self.action_insert)
+        # self.button_insert.clicked.connect(self.action_insert)
         self.button_move.clicked.connect(self.action_move)
 
         # TODO
@@ -210,7 +214,7 @@ class MainWindow(QMainWindow):
             logger.debug(f'building widget for entry: {e.id}')
 
             # tenta obter o módulo certo pra lidar com essa entry
-            module = self.module_registry.get_for_entry(e)
+            module = self.module_registry.get_entry_compatible_module(e)
             if not module:
                 logger.warning(f'no module found for entry: {e.id}')
                 continue
@@ -221,10 +225,12 @@ class MainWindow(QMainWindow):
             if not result:
                 logger.warning(f'failed to build widget for entry: {e.id}')
                 continue
-            item, widget = result
 
+            item = QListWidgetItem()
+            item.setData(Qt.ItemDataRole.UserRole, e.id)
+            item.setSizeHint(result.sizeHint())
             self.qlist.addItem(item)
-            self.qlist.setItemWidget(item, widget)
+            self.qlist.setItemWidget(item, result)
 
             # FIXME: temporário
             print('adicionado')
@@ -292,23 +298,23 @@ class MainWindow(QMainWindow):
 
             self.load_table_contents()
 
-    def action_insert(self):
-        # obtém o conteúdo do input de texto e adiciona na collection
-        value = self.input_insert.text()
-        if not value:
-            logger.warning('insert requested with empty input')
-            return
-
-        # FIXME: TEMPORÁRIO
-        logger.info(f'extracting video information from input: {value}')
-        info = extract_video_info(value, instance_ytdl())
-
-        if not info:
-            logger.error('failed to extract video information')
-            return
-
-        self.controller.write_entry(module='youtube', type='video', reference=info.get('id'))
-        self.refresh()
+#     def action_insert(self):
+#         # obtém o conteúdo do input de texto e adiciona na collection
+#         value = self.input_insert.text()
+#         if not value:
+#             logger.warning('insert requested with empty input')
+#             return
+#
+#         # FIXME: TEMPORÁRIO
+#         logger.info(f'extracting video information from input: {value}')
+#         info = extract_video_info(value, instance_ytdl())
+#
+#         if not info:
+#             logger.error('failed to extract video information')
+#             return
+#
+#         self.controller.write_entry(module='youtube', type='video', reference=info.get('id'))
+#         self.refresh()
 
     def action_change_collection(self, index):
         # obtém o caminho de um arquivo clicado na file tree
@@ -379,10 +385,10 @@ def main():
     # FIXME: nao tem erro se o caminho é inválido
     # FIXME: consertar esse path hardcoded
     # FIXME: temporário
-    file = Path('/mnt/seagate/workspace/coding/experimental/exp-sorted-py/testei/eumerlyteste.json')
+    file = Path('/mnt/seagate/workspace/coding/projetos/software/sorted/testei2/eumerlyteste local.json')
     #file = None
 
-    root = Path('/mnt/seagate/workspace/coding/experimental/exp-sorted-py/testei')
+    root = Path('/mnt/seagate/workspace/coding/projetos/software/sorted/testei2')
 
     main_window = MainWindow(file, root)
     main_window.show()
