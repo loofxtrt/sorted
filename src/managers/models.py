@@ -265,6 +265,8 @@ class Module:
 #     def receive_url(self, url: str):
 #         pass
 
+
+
 # TODO: documentação
 class ModuleRegistry:
     def __init__(self):

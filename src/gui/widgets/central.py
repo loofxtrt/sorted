@@ -34,6 +34,7 @@ class Central(QWidget):
         self.contents_layout.addWidget(self.qlist, 1)
 
 class ContentList(QListWidget):
+    # TODO: documentação
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -63,7 +64,15 @@ class ContentList(QListWidget):
         self.addItem(item)
         self.setItemWidget(item, container)
 
-    def get_selected_ids(self):
+    def get_selected_ids(self) -> list[str]:
         # espera que todo item tenha um userrole que indique qual entry ele representa
         items = self.selectedItems()
         return [i.data(Qt.ItemDataRole.UserRole) for i in items]
+
+    def get_current_id(self) -> str | None:
+        item = self.currentItem()
+
+        if not item:
+            return
+
+        return item.data(Qt.ItemDataRole.UserRole)

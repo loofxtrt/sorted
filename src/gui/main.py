@@ -13,6 +13,7 @@ from PyQt6.QtCore import Qt, QSize
 from src.gui.widgets.central import Central
 from src.gui.widgets.header import Header
 from src.gui.widgets.sidebar import Sidebar
+from src.managers.controller import get_entry_by_id
 from src.modules.local.main import LocalModule
 
 from ..utils.generic import generate_random_id, get_iso_datetime
@@ -81,9 +82,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central)
         self.load_list_contents() # carregar o conteúdo pela primeira vez
 
-
-        self.central.qlist.currentItemChanged.connect(self.central.sidebar.inspector.open_entry)
-
+        self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
 
         # inputs
         self.button_insert = QPushButton('Insert')
@@ -181,6 +180,21 @@ class MainWindow(QMainWindow):
 #         tree.hideColumn(3)
 #
 #         return tree
+
+    def on_current_entry_changed(self):
+        """
+        identifica o id do item atualmente selecionado
+        e abre a entry correspondente no inspector
+        """
+
+        current_id = self.central.qlist.get_current_id()
+        if not current_id:
+            return
+
+        # TODO: esses returns/a falta deles podem falhar silenciosamente. precisa de mais erros
+
+        entry = get_entry_by_id(self.collection, current_id)
+        self.central.sidebar.inspector.open_entry(entry)
 
     def load_list_contents(self):
         logger.debug(f'loading entries for collection: {self.collection.name}')
