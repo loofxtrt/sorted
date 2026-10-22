@@ -1,17 +1,16 @@
-from cProfile import label
 from pathlib import Path
-from tkinter import Label
 
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow,
     QTableWidget, QTableWidgetItem, QAbstractItemView,
     QListWidget, QListWidgetItem,
     QPushButton, QLineEdit, QLabel, QFileDialog, QInputDialog, QComboBox,
-    QWidget, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeView
+    QWidget, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeView, QTabWidget
 )
 from PyQt6.QtGui import QFileSystemModel, QFont, QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize
 
+from src.gui.widgets.sidebar import Sidebar
 from src.modules.local.main import LocalModule
 
 from ..utils.generic import generate_random_id, get_iso_datetime
@@ -116,8 +115,8 @@ class MainWindow(QMainWindow):
         self.button_root.clicked.connect(self.action_pick_root)
 
         self.model = None # tem que ser self pq é importante pra operações com a file tree
-        self.file_tree = self.compose_file_tree()
-        self.file_tree.clicked.connect(self.action_change_collection)
+        # self.file_tree = self.compose_file_tree()
+        self.sidebar.file_tree.clicked.connect(self.action_change_collection)
 
         self.button_create = QPushButton('New collection')
         self.button_create.clicked.connect(self.action_create_collection)
@@ -134,19 +133,21 @@ class MainWindow(QMainWindow):
         contents.addLayout(self.header)
         contents.addWidget(self.qlist)
 
-        widget_sidebar = QWidget()
-        widget_sidebar.setMaximumWidth(350) # é definido no widget inteiro, não só na file tree
-        sidebar = QVBoxLayout(widget_sidebar)
+        # widget_sidebar = QWidget()
+        # widget_sidebar.setMaximumWidth(350) # é definido no widget inteiro, não só na file tree
+        # sidebar = QVBoxLayout(widget_sidebar)
 
-        sidebar.addWidget(self.file_tree)
-        sidebar.addWidget(self.button_create)
-        sidebar.addWidget(self.button_root)
+        # sidebar.addWidget(self.file_tree)
+        # sidebar.addWidget(self.button_create)
+        # sidebar.addWidget(self.button_root)
 
         # layout, definir o que vai estar na horizontal
         # ex: sidebar, file tree, contents etc.
         layout = QHBoxLayout(central)
-        layout.addWidget(widget_sidebar)
+        # layout.addWidget(widget_sidebar)
         layout.addWidget(widget_contents)
+
+        self.sidebar = Sidebar(parent=layout, root=root)
 
     def compose_info_panel(self) -> QVBoxLayout:
         # título fica em cima
@@ -189,21 +190,21 @@ class MainWindow(QMainWindow):
 
         return qlist
 
-    def compose_file_tree(self) -> QTreeWidget:
-        self.model = QFileSystemModel()
-        self.model.setRootPath(self.root)
-
-        tree = QTreeView()
-        tree.setModel(self.model)
-
-        tree.setRootIndex(self.model.index(self.root))
-
-        tree.setHeaderHidden(True)
-        tree.hideColumn(1)
-        tree.hideColumn(2)
-        tree.hideColumn(3)
-
-        return tree
+#     def compose_file_tree(self) -> QTreeWidget:
+#         self.model = QFileSystemModel()
+#         self.model.setRootPath(self.root)
+#
+#         tree = QTreeView()
+#         tree.setModel(self.model)
+#
+#         tree.setRootIndex(self.model.index(self.root))
+#
+#         tree.setHeaderHidden(True)
+#         tree.hideColumn(1)
+#         tree.hideColumn(2)
+#         tree.hideColumn(3)
+#
+#         return tree
 
     def load_list_contents(self):
         logger.debug(f'loading entries for collection: {self.collection.name}')
