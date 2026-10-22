@@ -16,15 +16,14 @@ class Header(QWidget):
         widget = QWidget()
 
         # título fica em cima
-        title_label = QLabel()
+        title_label = QLabel('title')
 
-        title_layout = QVBoxLayout(widget)
-        title_layout.addWidget(title_label)
+        layout = QVBoxLayout(widget)
+        layout.addWidget(title_label)
 
         # demais informações ficam em baixo
-        entry_count_label = QLabel()
-        info_layout = QHBoxLayout(widget)
-        info_layout.addWidget(entry_count_label)
+        entry_count_label = QLabel('information')
+        layout.addWidget(entry_count_label)
 
         return widget
 

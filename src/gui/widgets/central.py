@@ -1,19 +1,26 @@
-from PyQt6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QAbstractItemView
+from pathlib import Path
 
 from src.gui.widgets.header import Header
+from src.gui.widgets.sidebar import Sidebar
 
 class Central(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, root: Path, parent=None) -> None:
         super().__init__(parent)
 
-        self.central = QWidget()
-        self.central_layout = QHBoxLayout(self.central)
+        layout = QHBoxLayout(self)
+
+        self.sidebar = Sidebar(root=root)
+        layout.addWidget(self.sidebar)
 
         # vertical. ex: header -> central logo embaixo
         self.contents = QWidget()
         self.contents_layout = QVBoxLayout(self.contents)
 
-        self.central_layout.addWidget(self.contents, 1)
+        self.compose_header()
+        self.compose_contents()
+
+        layout.addWidget(self.contents, 1)
 
     def compose_header(self):
         self.header = Header()
@@ -22,10 +29,8 @@ class Central(QWidget):
     def compose_contents(self):
         self.qlist = QListWidget()
         self.qlist.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        self.contents_layout.addWidget(self.qlist, 1)
 
-        self.sidebar = Sidebar(root=self.root)
-        self.contents_layout.addWidget(self.sidebar)
+        self.contents_layout.addWidget(self.qlist, 1)
 
     # LAYOUT
     ## vertical. ex: header -> central logo embaixo
@@ -34,14 +39,14 @@ class Central(QWidget):
     ### lista
 
 
-# 
-# 
+#
+#
 #     self.load_list_contents() # carregar o conteúdo pela primeira vez
-# 
+#
 #     ## horizontal. ex: sidebar -> conteúdo
 #     central = QWidget()
 #     central_layout = QHBoxLayout(central)
 #     self.setCentralWidget(central)
-# 
-# 
+#
+#
 #     central_layout.addWidget(self.sidebar)

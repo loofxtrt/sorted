@@ -16,6 +16,7 @@ class Sidebar(QWidget):
         layout.addWidget(self.entry_widget)
 
         self.file_tree = self.compose_file_tree(str(root))
+        layout.addWidget(self.file_tree)
 
     def compose_file_tree(self, root: str) -> QTreeView:
         self.model = QFileSystemModel()

@@ -77,7 +77,7 @@ class MainWindow(QMainWindow):
         self.controller = Controller(self.collection)
 
         # self.setup()
-        self.central = Central()
+        self.central = Central(parent=self, root=self.root)
         self.setCentralWidget(self.central)
         self.load_list_contents() # carregar o conteúdo pela primeira vez
 
