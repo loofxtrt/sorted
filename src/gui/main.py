@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFileSystemModel, QFont, QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize
 
+from src.gui.widgets.central import Central
 from src.gui.widgets.header import Header
 from src.gui.widgets.sidebar import Sidebar
 from src.modules.local.main import LocalModule
@@ -75,7 +76,10 @@ class MainWindow(QMainWindow):
 
         self.controller = Controller(self.collection)
 
-        self.setup()
+        # self.setup()
+        self.central = Central()
+        self.setCentralWidget(self.central)
+        self.load_list_contents() # carregar o conteúdo pela primeira vez
 
         # inputs
         self.button_insert = QPushButton('Insert')
@@ -113,7 +117,7 @@ class MainWindow(QMainWindow):
 
         self.model = None # tem que ser self pq é importante pra operações com a file tree
         # self.file_tree = self.compose_file_tree()
-        self.sidebar.file_tree.clicked.connect(self.action_change_collection)
+        self.central.sidebar.file_tree.clicked.connect(self.action_change_collection)
 
         self.button_create = QPushButton('New collection')
         self.button_create.clicked.connect(self.action_create_collection)
@@ -126,37 +130,37 @@ class MainWindow(QMainWindow):
         # sidebar.addWidget(self.button_create)
         # sidebar.addWidget(self.button_root)
 
-    def setup(self):
-        # definir como os contents vão ser exibidos
-        # na ordem vertical, primeiro o barra do topo, depois a lista etc.
-        # widget_contents = QWidget()
-        # contents = QVBoxLayout(widget_contents)
-
-        # LAYOUT
-        ## vertical. ex: header -> central logo embaixo
-        contents = QWidget()
-        contents_layout = (QVBoxLayout(contents))
-
-        self.header = Header()
-        contents_layout.addWidget(self.header)
-
-        ### lista
-        self.qlist = QListWidget()
-        self.qlist.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-
-        contents_layout.addWidget(self.qlist, 1)
-
-        self.load_list_contents() # carregar o conteúdo pela primeira vez
-
-        ## horizontal. ex: sidebar -> conteúdo
-        central = QWidget()
-        central_layout = QHBoxLayout(central)
-        self.setCentralWidget(central)
-
-        self.sidebar = Sidebar(root=self.root)
-        central_layout.addWidget(self.sidebar)
-
-        central_layout.addWidget(contents, 1)
+#     def setup(self):
+#         # definir como os contents vão ser exibidos
+#         # na ordem vertical, primeiro o barra do topo, depois a lista etc.
+#         # widget_contents = QWidget()
+#         # contents = QVBoxLayout(widget_contents)
+#
+#         # LAYOUT
+#         ## vertical. ex: header -> central logo embaixo
+#         contents = QWidget()
+#         contents_layout = (QVBoxLayout(contents))
+#
+#         self.header = Header()
+#         contents_layout.addWidget(self.header)
+#
+#         ### lista
+#         self.qlist = QListWidget()
+#         self.qlist.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+#
+#         contents_layout.addWidget(self.qlist, 1)
+#
+#         self.load_list_contents() # carregar o conteúdo pela primeira vez
+#
+#         ## horizontal. ex: sidebar -> conteúdo
+#         central = QWidget()
+#         central_layout = QHBoxLayout(central)
+#         self.setCentralWidget(central)
+#
+#         self.sidebar = Sidebar(root=self.root)
+#         central_layout.addWidget(self.sidebar)
+#
+#         central_layout.addWidget(contents, 1)
 
 #     def compose_file_tree(self) -> QTreeWidget:
 #         self.model = QFileSystemModel()
@@ -177,7 +181,7 @@ class MainWindow(QMainWindow):
     def load_list_contents(self):
         logger.debug(f'loading entries for collection: {self.collection.name}')
 
-        self.qlist.clear()
+        self.central.qlist.clear()
 
         entries = self.collection.entries
         logger.debug(f'found {len(entries)} entries')
@@ -209,8 +213,8 @@ class MainWindow(QMainWindow):
             item.setData(Qt.ItemDataRole.UserRole, e.id)
             item.setSizeHint(container.sizeHint())
 
-            self.qlist.addItem(item)
-            self.qlist.setItemWidget(item, container)
+            self.central.qlist.addItem(item)
+            self.central.qlist.setItemWidget(item, container)
 
             # FIXME: temporário
             print('adicionado')
@@ -234,7 +238,7 @@ class MainWindow(QMainWindow):
     def get_selected_ids(self):
         # espera que todo item tenha um userrole (valor oculto)
         # que indique qual entry ele representa
-        items = self.qlist.selectedItems()
+        items = self.central.qlist.selectedItems()
         return [i.data(Qt.ItemDataRole.UserRole) for i in items]
 
     def action_remove(self):
