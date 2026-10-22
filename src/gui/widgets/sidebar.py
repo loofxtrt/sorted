@@ -18,6 +18,9 @@ class Sidebar(QWidget):
         self.file_tree = self.compose_file_tree(str(root))
         layout.addWidget(self.file_tree)
 
+        self.inspector = Inspector()
+        layout.addWidget(self.inspector)
+
     def compose_file_tree(self, root: str) -> QTreeView:
         self.model = QFileSystemModel()
         self.model.setRootPath(root)
@@ -34,21 +37,30 @@ class Sidebar(QWidget):
 
         return tree
 
-    def compose_inspector(self) -> QWidget:
-        def _register_value_label(placeholder: str):
-            """
-            registra um label pra mostrar uma informação no inspector e retorna ele
-            """
+class Inspector(QWidget):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
 
-            label = QLabel(placeholder)
-            layout.addWidget(label)
+        layout = QVBoxLayout(self)
 
-            return label
+        self.label_title = self.register_value_label('title', layout)
+        self.label_type = self.register_value_label('type', layout)
+        self.label_id = self.register_value_label('id', layout)
+        self.label_fields = self.register_value_label('fields', layout)
 
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
+    def register_value_label(self, placeholder: str, layout: QHBoxLayout | QVBoxLayout):
+        """
+        registra um label pra mostrar uma informação no inspector e retorna ele
 
-        label_title = _register_value_label('title')
-        label_type = _register_value_label('type')
-        label_id = _register_value_label('id')
-        label_fields = _register_value_label('fields')
+        args:
+            placeholder:
+                texto padrão do label
+
+            layout:
+                layout em que o label deve ser adicionado
+        """
+
+        label = QLabel(placeholder)
+        layout.addWidget(label)
+
+        return label
