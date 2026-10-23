@@ -1,6 +1,10 @@
 from PyQt6.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget, QHBoxLayout, QVBoxLayout, QLabel
 
 class Header(QWidget):
+    """
+    cabeçalho da interface, que agrupa o painel de informações e o painel de controles
+    """
+
     # TODO: documentação
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -14,6 +18,13 @@ class Header(QWidget):
         layout.addWidget(self.control_panel)
 
     def compose_info_panel(self) -> QWidget:
+        """
+        cria o painel de informações, com o título em cima e as demais informações embaixo
+
+        returns:
+            o widget que contém o painel
+        """
+
         widget = QWidget()
 
         # título fica em cima
@@ -29,6 +40,14 @@ class Header(QWidget):
         return widget
 
     def compose_control_panel(self) -> QWidget:
+        """
+        cria o painel de controles, com o input de referência, o dropdown de tipo
+        e os botões de inserir e remover
+
+        returns:
+            o widget que contém o painel
+        """
+
         # self.button_move = QPushButton('Move')
         # self.button_copy = QPushButton('Copy')
         # self.button_edit = QPushButton('Edit')

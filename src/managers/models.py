@@ -12,7 +12,8 @@ class Vault:
     representa um vault de trabalho e gerencia sua estrutura interna
 
     esta classe cria e organiza o diretório base do vault, incluindo o diretório oculto
-    de contexto (.sorted), além de expor caminhos úteis como modules e cache
+    de contexto (.sorted), além de expor caminhos úteis como o diretório de módulos
+    e o manifesto, e de registrar os módulos ativos
 
     args:
         root:
@@ -21,10 +22,11 @@ class Vault:
 
     def __init__(self, root: Path):
         """
-        define e cria o diretório oculto do vault
+        define e cria o diretório oculto do vault e carrega os módulos listados no manifesto
 
         root: /path/do/vault
         context: /path/do/vault/.sorted
+        manifest: /path/do/vault/.sorted/vault.json
         """
 
         self.root = root
@@ -53,6 +55,11 @@ class Vault:
         return path
 
     def set_modules(self):
+        """
+        lê o manifesto do vault e registra em module_registry os módulos core listados nele
+        ids que não existem em CORE_MODULES são ignorados
+        """
+
         from src.managers.maps import CORE_MODULES
 
         # TODO: fazer mais info no vault.json
@@ -108,6 +115,17 @@ class Entry:
 
     @classmethod
     def from_dict(cls, data: dict):
+        """
+        cria uma entry a partir de um dicionário
+
+        args:
+            data:
+                dicionário contendo os dados da entry
+
+        returns:
+            a entry criada
+        """
+
         return cls(
             id=data.get('id'),
             created_at=data.get('created_at'),
@@ -118,6 +136,13 @@ class Entry:
         )
 
     def to_dict(self):
+        """
+        converte a entry em um dicionário, pronto pra ser salvo em json
+
+        returns:
+            dicionário com os dados da entry
+        """
+
         return {
             'id': self.id,
             'created_at': self.created_at,
@@ -166,6 +191,12 @@ class Collection:
         args:
             data:
                 dicionário contendo os dados da collection e suas entries
+
+            file:
+                arquivo ao qual a collection pertence, usado depois pra salvar o estado
+
+        returns:
+            a collection criada
         """
 
         entries = { }
@@ -182,6 +213,14 @@ class Collection:
         )
 
     def to_dict(self):
+        """
+        converte a collection em um dicionário, pronto pra ser salvo em json
+        as entries ficam indexadas pelo id
+
+        returns:
+            dicionário com os dados da collection e de todas as suas entries
+        """
+
         entries = {}
         for e in self.entries.values():
             entries[e.id] = e.to_dict()
@@ -202,6 +241,9 @@ class Collection:
         args:
             file:
                 caminho do arquivo de collection
+
+        returns:
+            a collection carregada
         """
 
         # TODO: validação mais rigorosa com base na chave type
@@ -211,6 +253,11 @@ class Collection:
     def write_entry(self, entry: Entry):
         """
         adiciona uma entry na collection, tanto em memória quanto em disco
+
+        args:
+            entry:
+                entry que será adicionada
+                SE JÁ EXISTIR UMA COM O MESMO ID, ELA É SUBSTITUÍDA
         """
 
         # atualiza a memória primeiro, inserindo a entry nova
@@ -222,6 +269,10 @@ class Collection:
     def erase_entry(self, entry_id: str):
         """
         remove uma entry da collection, tanto em memória quanto em disco
+
+        args:
+            entry_id:
+                id da entry que será removida
         """
 
         self.entries.pop(entry_id, None)
@@ -297,9 +348,29 @@ class Module:
 
     # TODO
     def build_entry_widget(self, entry: Entry):
+        """
+        constrói o widget que representa uma entry na interface
+        ainda não implementado
+
+        args:
+            entry:
+                entry cujo widget será construído
+        """
+
         pass
 
     def can_handle_entry(self, entry: Entry):
+        """
+        verifica se o módulo sabe lidar com o tipo de uma entry
+
+        args:
+            entry:
+                entry que será verificada
+
+        returns:
+            True se o tipo da entry está em supported_types, senão False
+        """
+
         return entry.type in self.supported_types
 #
 #     def receive_url(self, url: str):
@@ -309,13 +380,37 @@ class Module:
 
 # TODO: documentação
 class ModuleRegistry:
+    """
+    registro dos módulos ativos de um vault
+    usado pra descobrir qual módulo sabe lidar com cada entry
+    """
+
     def __init__(self):
         self.modules: list[Module] = []
 
     def register(self, module):
+        """
+        adiciona um módulo no registro
+
+        args:
+            module:
+                módulo que será registrado
+        """
+
         self.modules.append(module)
 
     def get_entry_compatible_module(self, entry: Entry):
+        """
+        procura um módulo capaz de lidar com uma entry
+
+        args:
+            entry:
+                entry pra qual se quer encontrar um módulo
+
+        returns:
+            o primeiro módulo registrado que consegue lidar com a entry, ou None se nenhum conseguir
+        """
+
         for m in self.modules:
             if m.can_handle_entry(entry):
                 return m

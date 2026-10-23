@@ -8,6 +8,14 @@ from PyQt6.QtCore import pyqtSignal
 from src.managers.models import Entry
 
 class Sidebar(QWidget):
+    """
+    container principal da interface lateral, que agrupa a árvore de arquivos e o inspector
+
+    args:
+        root:
+            raíz do vault
+    """
+
     # TODO: documentação
     def __init__(self, root: Path, parent=None) -> None:
         super().__init__(parent)
@@ -45,6 +53,11 @@ class Sidebar(QWidget):
 #         return tree
 
 class Inspector(QWidget):
+    """
+    painel que exibe as informações de uma entry aberta, dividido em um formulário
+    somente leitura (ReadonlyForm) e um formulário de fields editáveis (FieldsForm)
+    """
+
     # TODO: documentação
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -59,7 +72,7 @@ class Inspector(QWidget):
 
         layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
 
-    def register_value_label(self, text: str, layout: QHBoxLayout | QVBoxLayout):
+    def register_value_label(self, text: str, layout: QHBoxLayout | QVBoxLayout) -> QLabel:
         """
         registra um label pra mostrar uma informação no inspector e retorna ele
 
@@ -69,6 +82,9 @@ class Inspector(QWidget):
 
             layout:
                 layout em que o label deve ser adicionado
+
+        returns:
+            o label criado
         """
 
         label = QLabel(text)
@@ -79,6 +95,10 @@ class Inspector(QWidget):
     def open_entry(self, entry: Entry):
         """
         exibe os dados de uma entry
+
+        args:
+            entry:
+                entry cujos dados serão exibidos nos formulários
         """
 
         self.readonly_form.label_id.setText(entry.id)
@@ -94,6 +114,14 @@ class Inspector(QWidget):
             self.fields_form.register_row(key, value)
 
 class GroupedForm(QWidget):
+    """
+    formulário de pares chave/valor envolvido por um QGroupBox
+
+    args:
+        group_label:
+            título exibido no topo do grupo
+    """
+
     # TODO: documentação
     def __init__(self, parent=None, group_label: str = ''):
         super().__init__(parent)
@@ -108,6 +136,9 @@ class GroupedForm(QWidget):
     def compose_key_label(self, key: str) -> QLabel:
         """
         cria um label padronizado pra ser o rótulo de um row de um formulário
+
+        returns:
+            o label criado
         """
 
         label = QLabel(key)
@@ -162,6 +193,14 @@ class GroupedForm(QWidget):
             self.form_layout.removeRow(0)
 
 class FieldsForm(GroupedForm):
+    """
+    formulário de fields editáveis de uma entry
+
+    signals:
+        field_changed:
+            emitido quando o valor de um input muda, com a chave do field e o novo valor
+    """
+
     field_changed = pyqtSignal(str, object)
 
     # TODO: documentação
@@ -175,6 +214,21 @@ class FieldsForm(GroupedForm):
         key: str,
         value: type[str] | type[bool] | type[numbers.Number] | None = None
     ) -> QLineEdit | QDoubleSpinBox | QCheckBox:
+        """
+        registra um row editável no formulário
+        o tipo do input é escolhido a partir do tipo de value:
+            - bool vira QCheckBox
+            - número vira QDoubleSpinBox
+            - o resto vira QLineEdit
+
+        args:
+            value:
+                valor inicial do input
+
+        returns:
+            o input criado pro row
+        """
+
         input = QLineEdit()
         field_changed_callback = lambda v, k=key: self.field_changed.emit(k, v)
 
@@ -211,6 +265,10 @@ class ReadonlyForm(GroupedForm):
         self.label_created_at = self.register_row('Created at')
 
 class FileTree(QWidget):
+    """
+    árvore de arquivos baseada em QFileSystemModel, com apenas a coluna de nome visível
+    """
+
     # TODO: documentação
     def __init__(self, root: Path, parent=None):
         super().__init__(parent)
@@ -235,6 +293,10 @@ class FileTree(QWidget):
     def set_focus(self, path: Path):
         """
         foca em um item da árvore caso ele seja válido
+
+        args:
+            path:
+                caminho do item que deve ser focado
         """
 
         index = self.model.index(str(path))

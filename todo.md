@@ -1,3 +1,4 @@
 - [ ] status bar com notificações de erros/avisos/resultados
 - [ ] visualização em grid
 - [ ] trocar de collection fechar a entry anterior no inspector
+- [ ] migrar controller do main pro managers.controller

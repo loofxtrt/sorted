@@ -6,6 +6,14 @@ from src.gui.widgets.header import Header
 from src.gui.widgets.sidebar import Sidebar
 
 class Central(QWidget):
+    """
+    widget central da interface, que agrupa a sidebar e a área de conteúdo
+
+    args:
+        root:
+            raíz do vault
+    """
+
     # TODO: documentação
     def __init__(self, root: Path, parent=None) -> None:
         super().__init__(parent)
@@ -26,14 +34,27 @@ class Central(QWidget):
         layout.addWidget(self.contents, 1)
 
     def compose_header(self):
+        """
+        cria o header e adiciona ele no topo da área de conteúdo
+        """
+
         self.header = Header()
         self.contents_layout.addWidget(self.header)
 
     def compose_contents(self):
+        """
+        cria a lista de entries e adiciona ela na área de conteúdo, abaixo do header
+        """
+
         self.qlist = ContentList() # TODO: mudar qlist pra content_list
         self.contents_layout.addWidget(self.qlist, 1)
 
 class ContentList(QListWidget):
+    """
+    lista de entries que permite selecionar múltiplos itens
+    cada item guarda no UserRole o id da entry que ele representa
+    """
+
     # TODO: documentação
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -42,10 +63,12 @@ class ContentList(QListWidget):
 
     def insert(self, userrole: str, entry_widget: QWidget):
         """
+        insere uma entry na lista
+
         args:
             userrole:
                 dados ocultos que ficam dentro do item na lista
-                ex.: IDs
+                ex.: o id da entry que esse item representa
 
             entry_widget:
                 o widget já resolvido e construído da entry
@@ -65,11 +88,26 @@ class ContentList(QListWidget):
         self.setItemWidget(item, container)
 
     def get_selected_ids(self) -> list[str]:
+        """
+        obtém os ids das entries selecionadas
+        espera que todo item tenha um userrole que indique qual entry ele representa
+
+        returns:
+            lista com o id de cada item selecionado
+        """
+
         # espera que todo item tenha um userrole que indique qual entry ele representa
         items = self.selectedItems()
         return [i.data(Qt.ItemDataRole.UserRole) for i in items]
 
     def get_current_id(self) -> str | None:
+        """
+        obtém o id da entry do item atual
+
+        returns:
+            o id do item atual, ou None se não houver nenhum
+        """
+
         item = self.currentItem()
 
         if not item:
