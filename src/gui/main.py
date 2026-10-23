@@ -321,11 +321,13 @@ class MainWindow(QMainWindow):
 
     def action_change_collection(self, index):
         # obtém o caminho de um arquivo clicado na file tree
-        # e se for uma collection válida, atualiza a visualização pra ela
-        model = self.file_tree.model()
-
-        dest = model.filePath(index)
+        # e se for uma collection válida e diferente da atual, atualiza a visualização pra ela
+        dest = self.central.sidebar.file_tree.model.filePath(index)
         dest = Path(dest)
+
+        if dest == self.collection.file:
+            logger.debug(f'clicked collection is the same as the current one: {dest}')
+            return
 
         logger.debug(f'file tree item selected: {dest}')
 
