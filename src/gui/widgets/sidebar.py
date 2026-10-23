@@ -56,10 +56,11 @@ class Inspector(QWidget):
         self.label_created_at = self.register_value_label('created at', layout)
         # self.label_fields = self.register_value_label('Fields', layout)
 
-        fields_group = QGroupBox('Fields')
-        self.form = FieldsForm(fields_group)
-        # layout.addWidget(self.form)
-        layout.addWidget(fields_group)
+        # fields_group = QGroupBox('Fields')
+        # self.form = FieldsForm(fields_group)
+        self.form = FieldsForm()
+        layout.addWidget(self.form)
+        # layout.addWidget(fields_group)
 
         layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
 
@@ -102,7 +103,14 @@ class FieldsForm(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.form_layout = QFormLayout(self)
+        # cria o grupo e um form layout dentro dele
+        group = QGroupBox('Fields')
+        self.form_layout = QFormLayout(group)
+
+        # adiciona o grupo ao layout principal
+        layout = QVBoxLayout(self)
+        layout.addWidget(group)
+        layout.addStretch()
 
     # TODO: suporte à sub-dict?
     def register_field(
