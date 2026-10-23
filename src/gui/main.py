@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
             module = self.vault.module_registry.get_entry_compatible_module(e)
             if not module:
                 logger.warning(f'no module found for entry: {e.id}')
-                result = build_error_entry_widget(details_text=f'No module with ID {e.module} found to handle {e.id}. Type: {e.type}')
+                result = build_error_entry_widget(details_text=f'No module with ID \'{e.module}\' found to handle \'{e.id}\'. Type: \'{e.type}\'')
             else:
                 # espera o result em vez de desenpacotar de uma vez
                 # pra não quebrar com 'cannot unpack non-iterable NoneType object'
@@ -266,9 +266,27 @@ class MainWindow(QMainWindow):
 
                 if not result:
                     logger.warning(f'failed to build widget for entry: {e.id}')
-                    result = build_error_entry_widget(details_text=f'Failed to build widget for {e.id}')
+                    result = build_error_entry_widget(details_text=f'Failed to build widget for \'{e.id}\'')
 
             # criar o elemento visual da entry
+            # cores de borda: midlight/shadow
+            # cores de fundo: window
+            # FIXME: especificar o estilo aqui, quebra o estilo do widget de erro
+            result.setProperty('class', 'entry')
+            result.setStyleSheet("""
+                QWidget[class="entry"] {
+                    border: 1px solid palette(midlight);
+                    border-radius: 5px;
+                    background-color: palette(window);
+                }
+            """)
+#             result.setStyleSheet("""
+#                 QWidget[class="entry"] {
+#                     border: 1px solid palette(midlight);
+#                     border-radius: 5px;
+#
+#                 }
+#             """)
             self.central.qlist.insert(userrole=e.id, entry_widget=result)
 
             logger.success(f'entry builded as widget: {e.id}')
