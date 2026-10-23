@@ -1,1 +1,2 @@
 - [ ] status bar com notificações de erros/avisos/resultados
+- [ ] visualização em grid

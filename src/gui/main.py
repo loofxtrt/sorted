@@ -98,17 +98,18 @@ class MainWindow(QMainWindow):
 
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
         self.central.header.button_insert.clicked.connect(self.action_insert)
+        self.central.header.button_remove.clicked.connect(self.action_remove)
 
         # inputs
-        self.button_insert = QPushButton('Insert')
-        self.button_remove = QPushButton('Remove')
-        self.button_move = QPushButton('Move')
-        self.button_copy = QPushButton('Copy')
-        self.button_edit = QPushButton('Edit')
-
-        self.button_remove.clicked.connect(self.action_remove)
-        # self.button_insert.clicked.connect(self.action_insert)
-        self.button_move.clicked.connect(self.action_move)
+#         self.button_insert = QPushButton('Insert')
+#         self.button_remove = QPushButton('Remove')
+#         self.button_move = QPushButton('Move')
+#         self.button_copy = QPushButton('Copy')
+#         self.button_edit = QPushButton('Edit')
+#
+#         self.button_remove.clicked.connect(self.action_remove)
+#         # self.button_insert.clicked.connect(self.action_insert)
+#         self.button_move.clicked.connect(self.action_move)
 
         # TODO
         self.combo_box_type = QComboBox()
