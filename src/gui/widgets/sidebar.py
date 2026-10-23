@@ -93,6 +93,7 @@ class Inspector(QWidget):
             self.fields_form.register_row(key, value)
 
 class GroupedForm(QWidget):
+    # TODO: documentação
     def __init__(self, parent=None, group_label: str = ''):
         super().__init__(parent)
 
@@ -101,7 +102,17 @@ class GroupedForm(QWidget):
 
         layout = QVBoxLayout(self)
         layout.addWidget(group)
-        layout.addStretch()
+        layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
+
+    def compose_key_label(self, key: str) -> QLabel:
+        """
+        cria um label padronizado pra ser o rótulo de um row de um formulário
+        """
+
+        label = QLabel(key)
+        label.setForegroundRole(QPalette.ColorRole.PlaceholderText) # cor semi-apagada
+
+        return label
 
     def register_row(self, key: str, value: str = '') -> QLabel:
         """
@@ -110,7 +121,7 @@ class GroupedForm(QWidget):
         args:
             key:
                 valor que aparece como chave do row no formulário
-                não é igual à chave do json, é só o texto visual na tela
+                não é igual à chave do json, é só o texto visual do rótulo
 
             value:
                 valor do row
@@ -119,9 +130,7 @@ class GroupedForm(QWidget):
             o widget que contém o valor do row
         """
 
-        key_label = QLabel(key)
-        key_label.setForegroundRole(QPalette.ColorRole.Mid) # cor semi-apagada
-
+        key_label = self.compose_key_label(key)
         value_label = QLabel(value)
 
         self.form_layout.addRow(key_label, value_label)
@@ -160,7 +169,7 @@ class FieldsForm(GroupedForm):
             input.setText(str(value))
 
         # adicionar o input criado no layout e retornar ele
-        self.form_layout.addRow(key, input)
+        self.form_layout.addRow(self.compose_key_label(key), input)
 
         return input
 
