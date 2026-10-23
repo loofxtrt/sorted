@@ -107,6 +107,17 @@ class Controller:
         logger.success(f'fields updated: {entry.id}')
 
 class MainWindow(QMainWindow):
+    """
+    janela principal da aplicação, que liga a interface, o vault e a collection aberta
+
+    args:
+        scol:
+            arquivo da collection que será aberta ao iniciar
+
+        root:
+            raíz do vault
+    """
+
     def __init__(self, scol: Path, root: Path):
         logger.info(f'initializing main window with collection: {scol}')
         logger.info(f'using vault root: {root}')
@@ -176,6 +187,9 @@ class MainWindow(QMainWindow):
     def get_currenty_entry(self) -> Entry | None:
         """
         identifica a entry atualmente selecionada
+
+        returns:
+            a entry do item atual da lista, ou None se não houver nenhum item atual
         """
 
         # identifica o id do item selecionado
@@ -191,6 +205,7 @@ class MainWindow(QMainWindow):
     def on_current_entry_changed(self):
         """
         abre a entry atual no inspector
+        não faz nada se não houver entry atual
         """
 
         entry = self.get_currenty_entry()
@@ -202,6 +217,18 @@ class MainWindow(QMainWindow):
         self.central.sidebar.inspector.open_entry(entry)
 
     def on_field_changed(self, key: str, value: object):
+        """
+        repassa pro controller a alteração de um field da entry atual
+        não faz nada se não houver entry atual
+
+        args:
+            key:
+                chave do field que foi alterado
+
+            value:
+                novo valor do field
+        """
+
         entry = self.get_currenty_entry()
 
         # TODO: esses returns/a falta deles podem falhar silenciosamente. precisa de mais erros
@@ -211,6 +238,11 @@ class MainWindow(QMainWindow):
         self.controller.write_fields(entry=entry, key=key, value=value)
 
     def load_list_contents(self):
+        """
+        limpa a lista e reconstrói o widget de cada entry da collection
+        entries sem módulo compatível, ou cujo widget falhe ao ser construído, são ignoradas
+        """
+
         logger.debug(f'loading entries for collection: {self.collection.name}')
 
         self.central.qlist.clear()
@@ -242,11 +274,20 @@ class MainWindow(QMainWindow):
         logger.debug('entry list loaded')
 
     def refresh(self):
+        """
+        recarrega o conteúdo da lista a partir da collection atual
+        """
+
         logger.debug(f'refreshing collection: {self.collection.name}')
 
         self.load_list_contents()
 
     def action_remove(self):
+        """
+        remove as entries selecionadas na lista e atualiza a ui
+        não faz nada se não houver entries selecionadas
+        """
+
         ids = self.central.qlist.get_selected_ids()
         if not ids:
             logger.warning('remove requested with no entries selected')
@@ -288,6 +329,12 @@ class MainWindow(QMainWindow):
 #             self.load_table_contents()
 
     def action_insert(self):
+        """
+        cria uma entry com a reference digitada no input e o módulo/tipo escolhido no dropdown
+        depois atualiza a ui
+        não faz nada se o input estiver vazio
+        """
+
         # obtém a reference presente no input de texto
         reference = self.central.header.input_reference.text()
         if not reference:
@@ -305,6 +352,16 @@ class MainWindow(QMainWindow):
 
     # TODO
     def action_change_collection(self, index):
+        """
+        troca a collection aberta pela do item clicado na file tree
+        o controller também é recriado e a ui é atualizada
+        não faz nada se o item clicado for a collection atual
+
+        args:
+            index:
+                índice do item clicado na file tree
+        """
+
         # obtém o caminho de um arquivo clicado na file tree
         # e se for uma collection válida e diferente da atual, atualiza a visualização pra ela
         dest = self.central.sidebar.file_tree.model.filePath(index)
