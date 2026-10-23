@@ -90,43 +90,28 @@ class Inspector(QWidget):
         # obtém os fields que a entry tem e registra cada um
         # com um label pra chave e um input pro valor
         for key, value in entry.fields.items():
-            self.fields_form.register_field(key, value)
+            self.fields_form.register_row(key, value)
 
-class FieldsForm(QWidget):
-    # TODO: documentação
-    def __init__(self, parent=None):
+class GroupedForm(QWidget):
+    def __init__(self, parent=None, group_label: str = ''):
         super().__init__(parent)
 
-        # cria o grupo e um form layout dentro dele
-        group = QGroupBox('Fields')
+        group = QGroupBox(group_label)
         self.form_layout = QFormLayout(group)
 
-        # adiciona o grupo ao layout principal
         layout = QVBoxLayout(self)
         layout.addWidget(group)
         layout.addStretch()
 
-    # TODO: suporte à sub-dict?
-    def register_field(
-        self,
-        label_text: str,
-        data: type[str] | type[bool] | type[numbers.Number] | None = None
-    ) -> QLineEdit | QDoubleSpinBox | QCheckBox | None:
-        input = QLineEdit()
+    def register_row(self, row_label, value: str = '') -> QLabel:
+        """
+        registra um row no formulário
+        """
 
-        if isinstance(data, bool):
-            input = QCheckBox()
-            input.setChecked(data)
-        elif isinstance(data, numbers.Number):
-            input = QDoubleSpinBox()
-            input.setValue(data)
-        else:
-            input.setText(str(data))
+        label = QLabel(value)
+        self.form_layout.addRow(row_label, label)
 
-        # adicionar o input criado no layout e retornar ele
-        self.form_layout.addRow(label_text, input)
-
-        return input
+        return label
 
     def clear(self):
         """
@@ -136,30 +121,60 @@ class FieldsForm(QWidget):
         while self.form_layout.rowCount():
             self.form_layout.removeRow(0)
 
-class ReadonlyForm(QWidget):
+class FieldsForm(GroupedForm):
+    # TODO: documentação
+    def __init__(self, parent=None):
+        super().__init__(parent, group_label='Fields')
+#
+#         # cria o grupo e um form layout dentro dele
+#         group = QGroupBox('Fields')
+#         self.form_layout = QFormLayout(group)
+#
+#         # adiciona o grupo ao layout principal
+#         layout = QVBoxLayout(self)
+#         layout.addWidget(group)
+#         layout.addStretch()
+
+    # TODO: suporte à sub-dict?
+    def register_row(
+        self,
+        row_label: str,
+        value: type[str] | type[bool] | type[numbers.Number] | None = None
+    ) -> QLineEdit | QDoubleSpinBox | QCheckBox:
+        input = QLineEdit()
+
+        if isinstance(value, bool):
+            input = QCheckBox()
+            input.setChecked(value)
+        elif isinstance(value, numbers.Number):
+            input = QDoubleSpinBox()
+            input.setValue(value)
+        else:
+            input.setText(str(value))
+
+        # adicionar o input criado no layout e retornar ele
+        self.form_layout.addRow(row_label, input)
+
+        return input
+
+class ReadonlyForm(GroupedForm):
     """
-    widget que exibe os valores de uma entry que não são alteráveis pela ui
+    campo que exibe os valores de uma entry que não são alteráveis pela ui
     """
 
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent, 'Properties')
+#
+#         group = QGroupBox('Properties')
+#         self.form_layout = QFormLayout(group)
+#
+#         layout = QVBoxLayout(self)
+#         layout.addWidget(group)
+#         layout.addStretch()
 
-        group = QGroupBox('Properties')
-        self.form_layout = QFormLayout(group)
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(group)
-        layout.addStretch()
-
-        self.label_type = self.register_readonly('type')
-        self.label_id = self.register_readonly('id')
-        self.label_created_at = self.register_readonly('created at')
-
-    def register_readonly(self, label_text: str, data: str | None = None) -> QLabel:
-        value_label = QLabel(str(data))
-
-        self.form_layout.addRow(label_text, value_label)
-        return value_label
+        self.label_type = self.register_row('Type')
+        self.label_id = self.register_row('ID')
+        self.label_created_at = self.register_row('Created at')
 
 class FileTree(QWidget):
     # TODO: documentação
