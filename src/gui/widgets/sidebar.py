@@ -50,17 +50,17 @@ class Inspector(QWidget):
 
         layout = QVBoxLayout(self)
 
+        readonly_group = QGroupBox('Properties')
+        readonly_layout = QVBoxLayout(readonly_group)
         # self.label_title = self.register_value_label('title', layout)
-        self.label_type = self.register_value_label('type', layout)
-        self.label_id = self.register_value_label('id', layout)
-        self.label_created_at = self.register_value_label('created at', layout)
-        # self.label_fields = self.register_value_label('Fields', layout)
+        self.label_type = self.register_value_label('type', readonly_layout)
+        self.label_id = self.register_value_label('id', readonly_layout)
+        self.label_created_at = self.register_value_label('created at', readonly_layout)
+        readonly_layout.addStretch()
+        layout.addWidget(readonly_group)
 
-        # fields_group = QGroupBox('Fields')
-        # self.form = FieldsForm(fields_group)
         self.form = FieldsForm()
         layout.addWidget(self.form)
-        # layout.addWidget(fields_group)
 
         layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
 
