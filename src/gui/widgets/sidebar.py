@@ -50,31 +50,13 @@ class Inspector(QWidget):
 
         layout = QVBoxLayout(self)
 
-        self.readonly = self.compose_readonly()
-        layout.addWidget(self.readonly)
+        self.readonly_form = ReadonlyForm()
+        layout.addWidget(self.readonly_form)
 
-        self.form = FieldsForm()
-        layout.addWidget(self.form)
-
-        layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
-
-    def compose_readonly(self) -> QGroupBox:
-        """
-        compõe e retorna o grupo que exibe os valores de uma entry que não são alteráveis pela ui
-        """
-
-        group = QGroupBox('Properties')
-        layout = QVBoxLayout(group)
-
-        # self.label_title = self.register_value_label('title', layout)
-        self.label_type = self.register_value_label('type', layout)
-        self.label_id = self.register_value_label('id', layout)
-        self.label_created_at = self.register_value_label('created at', layout)
+        self.fields_form = FieldsForm()
+        layout.addWidget(self.fields_form)
 
         layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
-        layout.addWidget(group)
-
-        return group
 
     def register_value_label(self, text: str, layout: QHBoxLayout | QVBoxLayout):
         """
@@ -98,17 +80,17 @@ class Inspector(QWidget):
         exibe os dados de uma entry
         """
 
-        self.label_id.setText(entry.id)
-        self.label_type.setText(entry.type)
-        self.label_created_at.setText(entry.created_at)
+        self.readonly_form.label_id.setText(entry.id)
+        self.readonly_form.label_type.setText(entry.type)
+        self.readonly_form.label_created_at.setText(entry.created_at)
         # TODO: fields
 
-        self.form.clear() # limpar o formulário antigo antes de reconstruir
+        self.fields_form.clear() # limpar o formulário antigo antes de reconstruir
 
         # obtém os fields que a entry tem e registra cada um
         # com um label pra chave e um input pro valor
         for key, value in entry.fields.items():
-            self.form.register_field(key, value)
+            self.fields_form.register_field(key, value)
 
 class FieldsForm(QWidget):
     # TODO: documentação
@@ -146,9 +128,6 @@ class FieldsForm(QWidget):
 
         return input
 
-    def register_readonly(self, label_text: str, data: str):
-        self.form_layout.addRow(label_text, data)
-
     def clear(self):
         """
         enquanto ainda existir um row presente no formulário, remove ele
@@ -156,6 +135,31 @@ class FieldsForm(QWidget):
 
         while self.form_layout.rowCount():
             self.form_layout.removeRow(0)
+
+class ReadonlyForm(QWidget):
+    """
+    widget que exibe os valores de uma entry que não são alteráveis pela ui
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        group = QGroupBox('Properties')
+        self.form_layout = QFormLayout(group)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(group)
+        layout.addStretch()
+
+        self.label_type = self.register_readonly('type')
+        self.label_id = self.register_readonly('id')
+        self.label_created_at = self.register_readonly('created at')
+
+    def register_readonly(self, label_text: str, data: str | None = None) -> QLabel:
+        value_label = QLabel(str(data))
+
+        self.form_layout.addRow(label_text, value_label)
+        return value_label
 
 class FileTree(QWidget):
     # TODO: documentação
