@@ -69,7 +69,6 @@ class MainWindow(QMainWindow):
         # self.module_registry.register(YouTubeModule(vault=Vault(root)))
         # self.module_registry.register(LocalModule(vault=Vault(root)))
         self.vault = Vault(self.root)
-        self.vault.set_modules()
 
         # dados e api
         # TODO: .sort em vez de .scol?

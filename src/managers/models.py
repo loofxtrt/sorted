@@ -6,6 +6,7 @@ from ..utils import json_io
 # from . import VaultCache
 
 
+# TODO: documentação
 class Vault:
     """
     representa um vault de trabalho e gerencia sua estrutura interna
@@ -35,6 +36,7 @@ class Vault:
         self.manifest = self.context / normalize_json_file('vault')
 
         self.module_registry = ModuleRegistry()
+        self.set_modules()
 
         # self.cache = VaultCache(self.context)
 
@@ -65,9 +67,8 @@ class Vault:
                 continue
 
             # TODO: quando for ter o externos, identificar os supported types via manifesto
-            # TODO: módulo nativo não leva id
             # enquanto os cores definiriam isso direto no código
-            # self.module_registry.register(Module(id=m, vault=self))
+            # TODO: módulo nativo não leva id
             self.module_registry.register(module_class(vault=self))
 
     # TODO: separar um cache pra cada plugin pra n precisar de um dir extra de cache
