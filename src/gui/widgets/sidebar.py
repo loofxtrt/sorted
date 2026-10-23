@@ -176,7 +176,7 @@ class FieldsForm(GroupedForm):
         value: type[str] | type[bool] | type[numbers.Number] | None = None
     ) -> QLineEdit | QDoubleSpinBox | QCheckBox:
         input = QLineEdit()
-        field_changed_callback = lambda v, k=key: self.on_field_changed(k, v)
+        field_changed_callback = lambda v, k=key: self.field_changed.emit(k, v)
 
         if isinstance(value, bool):
             input = QCheckBox()
@@ -197,9 +197,6 @@ class FieldsForm(GroupedForm):
         self.form_layout.addRow(self.compose_key_label(key), input)
 
         return input
-
-    def on_field_changed(self, key: str, value: object):
-        self.field_changed.emit(key, value)
 
 class ReadonlyForm(GroupedForm):
     """
