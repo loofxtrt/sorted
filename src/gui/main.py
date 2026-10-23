@@ -279,6 +279,10 @@ class MainWindow(QMainWindow):
                     border-radius: 5px;
                     background-color: palette(window);
                 }
+
+                QWidget[class="entry"]:hover {
+                    border-color: palette(highlight)
+                }
             """)
 #             result.setStyleSheet("""
 #                 QWidget[class="entry"] {
