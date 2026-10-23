@@ -67,6 +67,8 @@ class Controller:
         entry.fields = fields
         self.collection.save_state()
 
+        logger.success(f'fields updated: {entry.id}')
+
 class MainWindow(QMainWindow):
     def __init__(self, scol: Path, root: Path):
         logger.info(f'initializing main window with collection: {scol}')
@@ -111,6 +113,7 @@ class MainWindow(QMainWindow):
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
         self.central.header.button_insert.clicked.connect(self.action_insert)
         self.central.header.button_remove.clicked.connect(self.action_remove)
+        self.central.sidebar.inspector.fields_form.field_changed.connect(self.controller.write_fields)
 
         # inputs
 #         self.button_move = QPushButton('Move')

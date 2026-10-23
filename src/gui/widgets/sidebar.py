@@ -1,8 +1,9 @@
-import numbers
 from pathlib import Path
+import numbers
 
 from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
 from PyQt6.QtGui import QColor, QFileSystemModel, QPalette
+from PyQt6.QtCore import pyqtSignal
 
 from src.managers.models import Entry
 
@@ -161,6 +162,8 @@ class GroupedForm(QWidget):
             self.form_layout.removeRow(0)
 
 class FieldsForm(GroupedForm):
+    field_changed = pyqtSignal(str, object)
+
     # TODO: documentação
     def __init__(self, parent=None):
         super().__init__(parent, group_label='Fields')
@@ -174,14 +177,22 @@ class FieldsForm(GroupedForm):
     ) -> QLineEdit | QDoubleSpinBox | QCheckBox:
         input = QLineEdit()
 
+        emission_callback = lambda v, k=key: self.field_changed.emit(k, v)
+
         if isinstance(value, bool):
             input = QCheckBox()
             input.setChecked(value)
+
+            input.toggled.connect(emission_callback)
         elif isinstance(value, numbers.Number):
             input = QDoubleSpinBox()
             input.setValue(value)
+
+            input.valueChanged.connect(emission_callback)
         else:
             input.setText(str(value))
+
+            input.textChanged.connect(emission_callback)
 
         # adicionar o input criado no layout e retornar ele
         self.form_layout.addRow(self.compose_key_label(key), input)
