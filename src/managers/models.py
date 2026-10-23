@@ -32,6 +32,8 @@ class Vault:
         self.context = self.root / '.sorted'
         ensure_directory(self.context)
 
+        self.manifest = self.context / normalize_json_file('vault')
+
         # self.cache = VaultCache(self.context)
 
     @property
@@ -45,6 +47,13 @@ class Vault:
         ensure_directory(path)
 
         return path
+
+    def get_modules(self):
+        # TODO: fazer mais info no vault.json
+        # TODO: por enquanto isso lê apenas módulos core (nativos)
+        # TODO: documentação
+        data = json_io.read_json(self.manifest)
+        return data.get('modules', {}).modules.get('core', [])
 
     # TODO: separar um cache pra cada plugin pra n precisar de um dir extra de cache
 #     @property

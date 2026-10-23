@@ -67,7 +67,11 @@ class MainWindow(QMainWindow):
         # FIXME: TEMPORÁRIO
         self.module_registry = ModuleRegistry()
         # self.module_registry.register(YouTubeModule(vault=Vault(root)))
-        self.module_registry.register(LocalModule(vault=Vault(root)))
+        # self.module_registry.register(LocalModule(vault=Vault(root)))
+        self.vault = Vault(self.root)
+        modules = self.vault.get_modules()
+        for m in modules:
+            
 
         # dados e api
         # TODO: .sort em vez de .scol?
@@ -77,13 +81,13 @@ class MainWindow(QMainWindow):
 
         self.controller = Controller(self.collection)
 
-        # self.setup()
         self.central = Central(parent=self, root=self.root)
         self.setCentralWidget(self.central)
-        self.load_list_contents() # carregar o conteúdo pela primeira vez
+        self.load_list_contents() # carregar o conteúdo pela primeira vez. TODO: fazer isso ser uma chamada pra func de mudar o scol, unificando o comportamento?
         self.central.sidebar.file_tree.set_focus(self.scol) # fazer a árvore focar no scol atual
 
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
+        self.central.header.button_insert.connect(self.on)
 
         # inputs
         self.button_insert = QPushButton('Insert')
@@ -302,23 +306,24 @@ class MainWindow(QMainWindow):
 
             self.load_table_contents()
 
-#     def action_insert(self):
-#         # obtém o conteúdo do input de texto e adiciona na collection
-#         value = self.input_insert.text()
-#         if not value:
-#             logger.warning('insert requested with empty input')
-#             return
-#
-#         # FIXME: TEMPORÁRIO
-#         logger.info(f'extracting video information from input: {value}')
-#         info = extract_video_info(value, instance_ytdl())
-#
-#         if not info:
-#             logger.error('failed to extract video information')
-#             return
-#
-#         self.controller.write_entry(module='youtube', type='video', reference=info.get('id'))
-#         self.refresh()
+    def action_insert(self):
+        # obtém o conteúdo do input de texto e adiciona na collection
+        value = self.central.header.input_reference.text()
+        if not value:
+            logger.warning('insert requested with empty input')
+            return
+
+        # FIXME: TEMPORÁRIO
+        # logger.info(f'extracting video information from input: {value}')
+        # info = extract_video_info(value, instance_ytdl())
+
+        # if not info:
+            # logger.error('failed to extract video information')
+            # return
+
+        # self.controller.write_entry(module='youtube', type='video', reference=info.get('id'))
+        # self.controller.write_entry(module='local')
+        self.refresh()
 
     def action_change_collection(self, index):
         # obtém o caminho de um arquivo clicado na file tree

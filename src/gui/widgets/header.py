@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget, QHBoxLayout, QVBoxLayout, QLabel
 
 class Header(QWidget):
     # TODO: documentação
@@ -29,7 +29,9 @@ class Header(QWidget):
         return widget
 
     def compose_control_panel(self) -> QWidget:
-        widget = QWidget()
+        # self.button_move = QPushButton('Move')
+        # self.button_copy = QPushButton('Copy')
+        # self.button_edit = QPushButton('Edit')
 
 #         # input de texto + botão pra inserir novas entradas
 #         hbox_insert = QHBoxLayout()
@@ -40,7 +42,17 @@ class Header(QWidget):
 #         vbox_control_panel.addLayout(hbox_insert)
 #
 #         # row de ações que podem ser tomadas pra cada entrada
-#         hbox_actions = QHBoxLayout()
+        widget = QWidget()
+        actions_layout = QHBoxLayout(widget)
+
+        self.input_reference = QLineEdit()
+        self.dropdown_type = QComboBox()
+        self.button_insert = QPushButton('Insert')
+        self.button_remove = QPushButton('Remove')
+
+        actions_layout.addWidget(self.input_reference)
+        actions_layout.addWidget(self.button_insert)
+        actions_layout.addWidget(self.button_remove)
 #
 #         for b in [self.button_remove, self.button_move, self.button_copy]:
 #             hbox_actions.addWidget(b)
