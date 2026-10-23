@@ -3,3 +3,4 @@
 - [ ] trocar de collection fechar a entry anterior no inspector
 - [ ] migrar controller do main pro managers.controller
 - [ ] tamanho fixo pros elementos da sidebar
+- [ ] cache/registro de tamanho dos splitters

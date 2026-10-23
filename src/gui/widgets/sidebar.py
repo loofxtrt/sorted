@@ -1,7 +1,7 @@
 from pathlib import Path
 import numbers
 
-from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QSplitter, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
+from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QSizePolicy, QSplitter, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
 from PyQt6.QtGui import QColor, QFileSystemModel, QPalette
 from PyQt6.QtCore import Qt, pyqtSignal
 
@@ -37,6 +37,7 @@ class Sidebar(QWidget):
         splitter.addWidget(self.inspector)
 
         # adicionar o splitter
+        splitter.setSizes([250, 250])
         layout.addWidget(splitter)
 
 #     def compose_file_tree(self, root: str) -> QTreeView:

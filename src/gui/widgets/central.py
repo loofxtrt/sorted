@@ -36,6 +36,7 @@ class Central(QWidget):
         splitter.addWidget(self.contents)
 
         # adicionar o splitter
+        splitter.setSizes([280, 300])
         layout.addWidget(splitter)
 
     def compose_header(self):
