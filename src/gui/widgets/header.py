@@ -51,6 +51,7 @@ class Header(QWidget):
         self.button_remove = QPushButton('Remove')
 
         actions_layout.addWidget(self.input_reference)
+        actions_layout.addWidget(self.dropdown_type)
         actions_layout.addWidget(self.button_insert)
         actions_layout.addWidget(self.button_remove)
 #

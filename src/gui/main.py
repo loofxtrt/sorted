@@ -83,6 +83,12 @@ class MainWindow(QMainWindow):
         self.load_list_contents() # carregar o conteúdo pela primeira vez. TODO: fazer isso ser uma chamada pra func de mudar o scol, unificando o comportamento?
         self.central.sidebar.file_tree.set_focus(self.scol) # fazer a árvore focar no scol atual
 
+        # registrar todos os tipos disponíveis de entry no vault no dropdown
+        # indica o módulo junto de cada tipo, assim como a command palette do obsidian
+        for m in self.vault.module_registry.modules:
+            for t in m.supported_types:
+                self.central.header.dropdown_type.addItem(f'{m.id}:{t}')
+
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
         # self.central.header.button_insert.connect(self.on)
 
