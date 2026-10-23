@@ -87,10 +87,17 @@ class MainWindow(QMainWindow):
         # indica o módulo junto de cada tipo, assim como a command palette do obsidian
         for m in self.vault.module_registry.modules:
             for t in m.supported_types:
-                self.central.header.dropdown_type.addItem(f'{m.id}:{t}')
+                display = f'{m.id}:{t}'
+                hidden_data = {
+                    # dados que ficam ocultos na ui, mas preservados em cada item do dropdown
+                    'module': m.id,
+                    'type': t
+                }
+
+                self.central.header.dropdown_type.addItem(display, hidden_data)
 
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
-        # self.central.header.button_insert.connect(self.on)
+        self.central.header.button_insert.clicked.connect(self.action_insert)
 
         # inputs
         self.button_insert = QPushButton('Insert')
@@ -310,11 +317,20 @@ class MainWindow(QMainWindow):
             self.load_table_contents()
 
     def action_insert(self):
-        # obtém o conteúdo do input de texto e adiciona na collection
-        value = self.central.header.input_reference.text()
-        if not value:
+        # obtém a reference presente no input de texto
+        reference = self.central.header.input_reference.text()
+        if not reference:
             logger.warning('insert requested with empty input')
             return
+
+        # obtém os dados do dropdown e mapeia o módulo e tipo de acordo
+        dropdown_data = self.central.header.dropdown_type.currentData()
+        module = dropdown_data.get('module')
+        type = dropdown_data.get('type')
+
+        # adiciona na collection e atualiza aa ui
+        self.controller.write_entry(module=module, type=type, reference=reference)
+        self.refresh()
 
         # FIXME: TEMPORÁRIO
         # logger.info(f'extracting video information from input: {value}')
@@ -326,7 +342,6 @@ class MainWindow(QMainWindow):
 
         # self.controller.write_entry(module='youtube', type='video', reference=info.get('id'))
         # self.controller.write_entry(module='local')
-        self.refresh()
 
     def action_change_collection(self, index):
         # obtém o caminho de um arquivo clicado na file tree
