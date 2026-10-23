@@ -34,6 +34,8 @@ class Vault:
 
         self.manifest = self.context / normalize_json_file('vault')
 
+        self.module_registry = ModuleRegistry()
+
         # self.cache = VaultCache(self.context)
 
     @property
@@ -48,12 +50,25 @@ class Vault:
 
         return path
 
-    def get_modules(self):
+    def set_modules(self):
+        from src.managers.maps import CORE_MODULES
+
         # TODO: fazer mais info no vault.json
         # TODO: por enquanto isso lê apenas módulos core (nativos)
         # TODO: documentação
         data = json_io.read_json(self.manifest)
-        return data.get('modules', {}).modules.get('core', [])
+
+        module_ids = data.get('modules', {}).get('core', [])
+        for id in module_ids:
+            module_class = CORE_MODULES.get(id)
+            if not module_class:
+                continue
+
+            # TODO: quando for ter o externos, identificar os supported types via manifesto
+            # TODO: módulo nativo não leva id
+            # enquanto os cores definiriam isso direto no código
+            # self.module_registry.register(Module(id=m, vault=self))
+            self.module_registry.register(module_class(vault=self))
 
     # TODO: separar um cache pra cada plugin pra n precisar de um dir extra de cache
 #     @property

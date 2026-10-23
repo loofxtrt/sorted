@@ -65,13 +65,11 @@ class MainWindow(QMainWindow):
         self.root = root
 
         # FIXME: TEMPORÁRIO
-        self.module_registry = ModuleRegistry()
+        # self.module_registry = ModuleRegistry()
         # self.module_registry.register(YouTubeModule(vault=Vault(root)))
         # self.module_registry.register(LocalModule(vault=Vault(root)))
         self.vault = Vault(self.root)
-        modules = self.vault.get_modules()
-        for m in modules:
-            
+        self.vault.set_modules()
 
         # dados e api
         # TODO: .sort em vez de .scol?
@@ -87,7 +85,7 @@ class MainWindow(QMainWindow):
         self.central.sidebar.file_tree.set_focus(self.scol) # fazer a árvore focar no scol atual
 
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
-        self.central.header.button_insert.connect(self.on)
+        # self.central.header.button_insert.connect(self.on)
 
         # inputs
         self.button_insert = QPushButton('Insert')
@@ -212,7 +210,7 @@ class MainWindow(QMainWindow):
             logger.debug(f'building widget for entry: {e.id}')
 
             # tenta obter o módulo certo pra lidar com essa entry
-            module = self.module_registry.get_entry_compatible_module(e)
+            module = self.vault.module_registry.get_entry_compatible_module(e)
             if not module:
                 logger.warning(f'no module found for entry: {e.id}')
                 continue
