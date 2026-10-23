@@ -19,28 +19,29 @@ class Sidebar(QWidget):
         self.entry_widget = QWidget()
         layout.addWidget(self.entry_widget)
 
-        self.file_tree = self.compose_file_tree(str(root))
+        # self.file_tree = self.compose_file_tree(str(root))
+        self.file_tree = FileTree(root=root)
         layout.addWidget(self.file_tree)
 
         self.inspector = Inspector()
         layout.addWidget(self.inspector)
 
-    def compose_file_tree(self, root: str) -> QTreeView:
-        # TODO: documentação
-        self.model = QFileSystemModel()
-        self.model.setRootPath(root)
-
-        tree = QTreeView()
-        tree.setModel(self.model)
-
-        tree.setRootIndex(self.model.index(root))
-
-        tree.setHeaderHidden(True)
-        tree.hideColumn(1)
-        tree.hideColumn(2)
-        tree.hideColumn(3)
-
-        return tree
+#     def compose_file_tree(self, root: str) -> QTreeView:
+#         # TODO: documentação
+#         self.model = QFileSystemModel()
+#         self.model.setRootPath(root)
+#
+#         tree = QTreeView()
+#         tree.setModel(self.model)
+#
+#         tree.setRootIndex(self.model.index(root))
+#
+#         tree.setHeaderHidden(True)
+#         tree.hideColumn(1)
+#         tree.hideColumn(2)
+#         tree.hideColumn(3)
+#
+#         return tree
 
 class Inspector(QWidget):
     # TODO: documentação
@@ -107,6 +108,28 @@ class FieldsForm(QWidget):
         else:
             input.setText(str(data))
 
+        # adicionar o input criado no layout e retornar ele
         self.form_layout.addRow(label_text, input)
 
         return input
+
+class FileTree(QWidget):
+    def __init__(self, root: Path, parent=None):
+        super().__init__(parent)
+
+        self.model = QFileSystemModel(self)
+        self.model.setRootPath(str(root)) # define a raíz
+
+        self.tree = QTreeView()
+        self.tree.setModel(self.model) # define qual model usar
+        self.tree.setRootIndex(self.model.index(str(root))) # define a partir de onde a raíz é exibida
+
+        # configurações
+        self.tree.setHeaderHidden(True)
+        self.tree.hideColumn(1) # tamanho
+        self.tree.hideColumn(2) # tipo
+        self.tree.hideColumn(3) # data
+
+        # inserção
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.tree)

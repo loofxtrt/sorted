@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
 
         self.model = None # tem que ser self pq é importante pra operações com a file tree
         # self.file_tree = self.compose_file_tree()
-        self.central.sidebar.file_tree.clicked.connect(self.action_change_collection)
+        self.central.sidebar.file_tree.tree.clicked.connect(self.action_change_collection)
 
         self.button_create = QPushButton('New collection')
         self.button_create.clicked.connect(self.action_create_collection)
