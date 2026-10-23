@@ -28,11 +28,34 @@ from .. import logger
 
 
 class Controller:
+    """
+    intermedia as operações sobre uma collection, registrando logs de cada ação
+
+    args:
+        collection:
+            collection que será manipulada pelo controller
+    """
+
     def __init__(self, collection: Collection):
         self.collection = collection
         logger.info(f'controller initialized for collection: {self.collection.name}')
 
     def write_entry(self, module: str, type: str, reference: str):
+        """
+        cria uma entry nova e adiciona ela na collection
+        o id e a data de criação são gerados automaticamente, e os fields começam vazios
+
+        args:
+            module:
+                id do módulo responsável pela entry
+
+            type:
+                tipo da entry
+
+            reference:
+                reference da entry (ex.: url ou caminho)
+        """
+
         logger.info(f'writing entry: module={module}, type={type}, reference={reference}')
 
         entry = Entry(
@@ -47,6 +70,14 @@ class Controller:
         logger.success(f'entry written: {entry.id}')
 
     def erase_entries(self, ids: list[str]):
+        """
+        remove várias entries da collection
+
+        args:
+            ids:
+                ids das entries que serão removidas
+        """
+
         logger.info(f'erasing {len(ids)} entr{"y" if len(ids) == 1 else "ies"}')
 
         for i in ids:
@@ -57,7 +88,17 @@ class Controller:
 
     def write_fields(self, entry: Entry, key: str, value: object):
         """
-        atualiza os fields e salva eles em disco
+        atualiza o valor de um field de uma entry e salva o estado da collection em disco
+
+        args:
+            entry:
+                entry cujo field será atualizado
+
+            key:
+                chave do field que será atualizado (se não existir, é criado)
+
+            value:
+                novo valor do field
         """
 
         entry.fields[key] = value
@@ -73,11 +114,6 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.root = root
-
-        # FIXME: TEMPORÁRIO
-        # self.module_registry = ModuleRegistry()
-        # self.module_registry.register(YouTubeModule(vault=Vault(root)))
-        # self.module_registry.register(LocalModule(vault=Vault(root)))
         self.vault = Vault(self.root)
 
         # dados e api
@@ -88,8 +124,10 @@ class MainWindow(QMainWindow):
 
         self.controller = Controller(self.collection)
 
+        # construção da ui
         self.central = Central(parent=self, root=self.root)
         self.setCentralWidget(self.central)
+
         self.load_list_contents() # carregar o conteúdo pela primeira vez. TODO: fazer isso ser uma chamada pra func de mudar o scol, unificando o comportamento?
         self.central.sidebar.file_tree.set_focus(self.scol) # fazer a árvore focar no scol atual
 
@@ -106,40 +144,31 @@ class MainWindow(QMainWindow):
 
                 self.central.header.dropdown_type.addItem(display, hidden_data)
 
+        # conexões
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
         self.central.header.button_insert.clicked.connect(self.action_insert)
         self.central.header.button_remove.clicked.connect(self.action_remove)
         self.central.sidebar.inspector.fields_form.field_changed.connect(self.on_field_changed)
 
-        # inputs
-#         self.button_move = QPushButton('Move')
-#         self.button_copy = QPushButton('Copy')
-#         self.button_edit = QPushButton('Edit')
-#
-#         self.button_remove.clicked.connect(self.action_remove)
-#         # self.button_insert.clicked.connect(self.action_insert)
-#         self.button_move.clicked.connect(self.action_move)
+        # file tree
+        self.model = None # tem que ser self pq é importante pra operações com a file tree
+        self.central.sidebar.file_tree.tree.clicked.connect(self.action_change_collection)
 
         # info
-        self.label_title = QLabel()
-        self.label_entry_count = QLabel()
-        self.label_type = QLabel()
+#         self.label_title = QLabel()
+#         self.label_entry_count = QLabel()
+#         self.label_type = QLabel()
+#
+#         font = QFont()
+#         font.setPointSize(16)
+#         font.setBold(True)
+#         self.label_title.setFont(font)
 
-        font = QFont()
-        font.setPointSize(16)
-        font.setBold(True)
-        self.label_title.setFont(font)
-
-        self.load_info_labels()
-
-        # file tree
         # self.root = str(root) # carregar o último root que foi usado
         # self.button_root = QPushButton('Change vault')
         # self.button_root.clicked.connect(self.action_pick_root)
 
-        self.model = None # tem que ser self pq é importante pra operações com a file tree
         # self.file_tree = self.compose_file_tree()
-        self.central.sidebar.file_tree.tree.clicked.connect(self.action_change_collection)
 #
 #         self.button_create = QPushButton('New collection')
 #         self.button_create.clicked.connect(self.action_create_collection)
@@ -188,6 +217,7 @@ class MainWindow(QMainWindow):
 
         entries = self.collection.entries
         logger.debug(f'found {len(entries)} entries')
+
         for e in entries.values():
             logger.debug(f'building widget for entry: {e.id}')
 
@@ -205,45 +235,16 @@ class MainWindow(QMainWindow):
                 continue
 
             # criar o elemento visual da entry
-            # TODO: documentação
-            # container = QWidget()
-            # container_layout = QVBoxLayout()
-            # container.setLayout(container_layout)
-            # container_layout.addWidget(result)
-            # container_layout.addWidget(QLabel(e.id))
-
-            # item = QListWidgetItem()
-            # item.setData(Qt.ItemDataRole.UserRole, e.id)
-            # item.setSizeHint(container.sizeHint())
-
-            # self.central.qlist.addItem(item)
-            # self.central.qlist.setItemWidget(item, container)
             self.central.qlist.insert(userrole=e.id, entry_widget=result)
 
-            # FIXME: temporário
-            print('adicionado')
+            logger.success(f'entry builded as widget: {e.id}')
 
         logger.debug('entry list loaded')
-
-    def load_info_labels(self):
-        logger.debug(f'updating collection info: {self.collection.name}')
-        logger.debug(f'collection entry count: {self.collection.entry_count}')
-
-        # atualiza os dados exibidos sobre a collection
-        self.label_title.setText(self.collection.name)
-        self.label_entry_count.setText(str(self.collection.entry_count))
 
     def refresh(self):
         logger.debug(f'refreshing collection: {self.collection.name}')
 
         self.load_list_contents()
-        self.load_info_labels()
-
-    # def get_selected_ids(self):
-    #     # espera que todo item tenha um userrole (valor oculto)
-    #     # que indique qual entry ele representa
-    #     items = self.central.qlist.selectedItems()
-    #     return [i.data(Qt.ItemDataRole.UserRole) for i in items]
 
     def action_remove(self):
         ids = self.central.qlist.get_selected_ids()
@@ -259,32 +260,32 @@ class MainWindow(QMainWindow):
         logger.success('entries removed and collection refreshed')
 
     # TODO
-    def action_move(self):
-        # promptar o caminho novo pra entrada
-        dest, _ = QFileDialog.getOpenFileName(
-            parent=self,
-            caption='Select entry destination',
-            filter='json (*.json)'
-        )
-
-        if not dest:
-            return
-
-        dest = Path(dest)
-        if not dest.is_file():
-            return
-
-        # se o destino for do mesmo tipo que a collection atual, é uma moção válida
-        if utils.file_collection_type_matches('videos', dest):
-            ids = self.get_selected_ids()
-            for i in ids:
-                manager.move_entry(
-                    src_collection=self.collection_file,
-                    dest_collection=dest,
-                    entry_id=i
-                )
-
-            self.load_table_contents()
+#     def action_move(self):
+#         # promptar o caminho novo pra entrada
+#         dest, _ = QFileDialog.getOpenFileName(
+#             parent=self,
+#             caption='Select entry destination',
+#             filter='json (*.json)'
+#         )
+#
+#         if not dest:
+#             return
+#
+#         dest = Path(dest)
+#         if not dest.is_file():
+#             return
+#
+#         # se o destino for do mesmo tipo que a collection atual, é uma moção válida
+#         if utils.file_collection_type_matches('videos', dest):
+#             ids = self.get_selected_ids()
+#             for i in ids:
+#                 manager.move_entry(
+#                     src_collection=self.collection_file,
+#                     dest_collection=dest,
+#                     entry_id=i
+#                 )
+#
+#             self.load_table_contents()
 
     def action_insert(self):
         # obtém a reference presente no input de texto
@@ -302,17 +303,7 @@ class MainWindow(QMainWindow):
         self.controller.write_entry(module=module, type=type, reference=reference)
         self.refresh()
 
-        # FIXME: TEMPORÁRIO
-        # logger.info(f'extracting video information from input: {value}')
-        # info = extract_video_info(value, instance_ytdl())
-
-        # if not info:
-            # logger.error('failed to extract video information')
-            # return
-
-        # self.controller.write_entry(module='youtube', type='video', reference=info.get('id'))
-        # self.controller.write_entry(module='local')
-
+    # TODO
     def action_change_collection(self, index):
         # obtém o caminho de um arquivo clicado na file tree
         # e se for uma collection válida e diferente da atual, atualiza a visualização pra ela
@@ -340,45 +331,45 @@ class MainWindow(QMainWindow):
         self.refresh()
 
         logger.success(f'collection changed to: {dest}')
-
-    # TODO
-    def action_change_root(self):
-        dest = self.input_root.text()
-        if not Path(dest).is_dir():
-            return
-
-        self.root = dest
-        self.model.setRootPath(self.root)
-        self.file_tree.setRootIndex(self.model.index(self.root))
-
-    def action_pick_root(self):
-        # define o novo root, o diretório usado pra visualizar
-        # quais playlists ele contém
-        root = QFileDialog.getExistingDirectory(
-            parent=self,
-            caption='Pick root'
-        )
-
-        if Path(root).is_dir():
-            self.root = root
-            self.model.setRootPath(root)
-            self.file_tree.setRootIndex(self.model.index(root))
-
-        # cache.write_last_root(Path(root))
-
-    def action_create_collection(self):
-        text, ok = QInputDialog.getText(
-            self,
-            'Collection title',
-            'Set a title for this collection'
-        )
-
-        if ok and text:
-            manager.create_collection(
-                title=text,
-                media_type='videos',
-                output_directory=Path(self.root)
-            )
+#
+#     # TODO
+#     def action_change_root(self):
+#         dest = self.input_root.text()
+#         if not Path(dest).is_dir():
+#             return
+#
+#         self.root = dest
+#         self.model.setRootPath(self.root)
+#         self.file_tree.setRootIndex(self.model.index(self.root))
+#
+#     def action_pick_root(self):
+#         # define o novo root, o diretório usado pra visualizar
+#         # quais playlists ele contém
+#         root = QFileDialog.getExistingDirectory(
+#             parent=self,
+#             caption='Pick root'
+#         )
+#
+#         if Path(root).is_dir():
+#             self.root = root
+#             self.model.setRootPath(root)
+#             self.file_tree.setRootIndex(self.model.index(root))
+#
+#         # cache.write_last_root(Path(root))
+#
+#     def action_create_collection(self):
+#         text, ok = QInputDialog.getText(
+#             self,
+#             'Collection title',
+#             'Set a title for this collection'
+#         )
+#
+#         if ok and text:
+#             manager.create_collection(
+#                 title=text,
+#                 media_type='videos',
+#                 output_directory=Path(self.root)
+#             )
 
 def main():
     app = QApplication([])
