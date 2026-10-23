@@ -2,7 +2,7 @@ import numbers
 from pathlib import Path
 
 from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
-from PyQt6.QtGui import QFileSystemModel
+from PyQt6.QtGui import QFileSystemModel, QPalette
 
 from src.managers.models import Entry
 
@@ -103,15 +103,30 @@ class GroupedForm(QWidget):
         layout.addWidget(group)
         layout.addStretch()
 
-    def register_row(self, row_label, value: str = '') -> QLabel:
+    def register_row(self, key: str, value: str = '') -> QLabel:
         """
         registra um row no formulário
+
+        args:
+            key:
+                valor que aparece como chave do row no formulário
+                não é igual à chave do json, é só o texto visual na tela
+
+            value:
+                valor do row
+
+        returns:
+            o widget que contém o valor do row
         """
 
-        label = QLabel(value)
-        self.form_layout.addRow(row_label, label)
+        key_label = QLabel(key)
+        key_label.setForegroundRole(QPalette.ColorRole.Mid) # cor semi-apagada
 
-        return label
+        value_label = QLabel(value)
+
+        self.form_layout.addRow(key_label, value_label)
+
+        return value_label
 
     def clear(self):
         """
@@ -125,20 +140,12 @@ class FieldsForm(GroupedForm):
     # TODO: documentação
     def __init__(self, parent=None):
         super().__init__(parent, group_label='Fields')
-#
-#         # cria o grupo e um form layout dentro dele
-#         group = QGroupBox('Fields')
-#         self.form_layout = QFormLayout(group)
-#
-#         # adiciona o grupo ao layout principal
-#         layout = QVBoxLayout(self)
-#         layout.addWidget(group)
-#         layout.addStretch()
 
     # TODO: suporte à sub-dict?
+    # TODO: keys editáveis
     def register_row(
         self,
-        row_label: str,
+        key: str,
         value: type[str] | type[bool] | type[numbers.Number] | None = None
     ) -> QLineEdit | QDoubleSpinBox | QCheckBox:
         input = QLineEdit()
@@ -153,7 +160,7 @@ class FieldsForm(GroupedForm):
             input.setText(str(value))
 
         # adicionar o input criado no layout e retornar ele
-        self.form_layout.addRow(row_label, input)
+        self.form_layout.addRow(key, input)
 
         return input
 
@@ -164,13 +171,6 @@ class ReadonlyForm(GroupedForm):
 
     def __init__(self, parent=None):
         super().__init__(parent, 'Properties')
-#
-#         group = QGroupBox('Properties')
-#         self.form_layout = QFormLayout(group)
-#
-#         layout = QVBoxLayout(self)
-#         layout.addWidget(group)
-#         layout.addStretch()
 
         self.label_type = self.register_row('Type')
         self.label_id = self.register_row('ID')
