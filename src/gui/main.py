@@ -55,16 +55,12 @@ class Controller:
 
         logger.info(f'erased {len(ids)} entr{"y" if len(ids) == 1 else "ies"}')
 
-    def write_fields(self, fields: dict, entry: Entry):
+    def write_fields(self, entry: Entry, key: str, value: object):
         """
         atualiza os fields e salva eles em disco
-
-        args:
-            fields:
-                fields novos a serem escritos
         """
 
-        entry.fields = fields
+        entry.fields[key] = value
         self.collection.save_state()
 
         logger.success(f'fields updated: {entry.id}')
@@ -113,7 +109,7 @@ class MainWindow(QMainWindow):
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
         self.central.header.button_insert.clicked.connect(self.action_insert)
         self.central.header.button_remove.clicked.connect(self.action_remove)
-        self.central.sidebar.inspector.fields_form.field_changed.connect(self.controller.write_fields)
+        self.central.sidebar.inspector.fields_form.field_changed.connect(self.on_field_changed)
 
         # inputs
 #         self.button_move = QPushButton('Move')
@@ -148,20 +144,42 @@ class MainWindow(QMainWindow):
 #         self.button_create = QPushButton('New collection')
 #         self.button_create.clicked.connect(self.action_create_collection)
 
-    def on_current_entry_changed(self):
+    def get_currenty_entry(self) -> Entry | None:
         """
-        identifica o id do item atualmente selecionado
-        e abre a entry correspondente no inspector
+        identifica a entry atualmente selecionada
         """
 
+        # identifica o id do item selecionado
         current_id = self.central.qlist.get_current_id()
         if not current_id:
             return
 
         # TODO: esses returns/a falta deles podem falhar silenciosamente. precisa de mais erros
 
-        entry = get_entry_by_id(self.collection, current_id)
+        # retorna o resultado da busca de uma entry com esse id
+        return get_entry_by_id(self.collection, current_id)
+
+    def on_current_entry_changed(self):
+        """
+        abre a entry atual no inspector
+        """
+
+        entry = self.get_currenty_entry()
+
+        # TODO: esses returns/a falta deles podem falhar silenciosamente. precisa de mais erros
+        if not entry:
+            return
+
         self.central.sidebar.inspector.open_entry(entry)
+
+    def on_field_changed(self, key: str, value: object):
+        entry = self.get_currenty_entry()
+
+        # TODO: esses returns/a falta deles podem falhar silenciosamente. precisa de mais erros
+        if not entry:
+            return
+
+        self.controller.write_fields(entry=entry, key=key, value=value)
 
     def load_list_contents(self):
         logger.debug(f'loading entries for collection: {self.collection.name}')
