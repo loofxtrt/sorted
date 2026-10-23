@@ -11,6 +11,7 @@ from PyQt6.QtGui import QFileSystemModel, QFont, QIcon, QPixmap
 from PyQt6.QtCore import Qt, QSize
 
 from src.gui.widgets.central import Central
+from src.gui.widgets.components import build_error_entry_widget
 from src.gui.widgets.header import Header
 from src.gui.widgets.sidebar import Sidebar
 from src.managers.controller import get_entry_by_id
@@ -240,12 +241,12 @@ class MainWindow(QMainWindow):
     def load_list_contents(self):
         """
         limpa a lista e reconstrói o widget de cada entry da collection
-        entries sem módulo compatível, ou cujo widget falhe ao ser construído, são ignoradas
+        entries sem módulo compatível, ou cujo widget falhe ao ser construído, recebem um widget de erro
         """
 
         logger.debug(f'loading entries for collection: {self.collection.name}')
 
-        self.central.qlist.clear()
+        self.central.qlist.clear() # limpar a lista antes de reconstruir
 
         entries = self.collection.entries
         logger.debug(f'found {len(entries)} entries')
@@ -257,14 +258,15 @@ class MainWindow(QMainWindow):
             module = self.vault.module_registry.get_entry_compatible_module(e)
             if not module:
                 logger.warning(f'no module found for entry: {e.id}')
-                continue
+                result = build_error_entry_widget(details_text=f'No module with ID {e.module} found to handle {e.id}. Type: {e.type}')
+            else:
+                # espera o result em vez de desenpacotar de uma vez
+                # pra não quebrar com 'cannot unpack non-iterable NoneType object'
+                result = module.build_entry_widget(e)
 
-            # espera o result em vez de desenpacotar de uma vez
-            # pra não quebrar com 'cannot unpack non-iterable NoneType object'
-            result = module.build_entry_widget(e)
-            if not result:
-                logger.warning(f'failed to build widget for entry: {e.id}')
-                continue
+                if not result:
+                    logger.warning(f'failed to build widget for entry: {e.id}')
+                    result = build_error_entry_widget(details_text=f'Failed to build widget for {e.id}')
 
             # criar o elemento visual da entry
             self.central.qlist.insert(userrole=e.id, entry_widget=result)
