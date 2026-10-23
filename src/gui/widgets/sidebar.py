@@ -77,12 +77,21 @@ class Inspector(QWidget):
         return label
 
     def open_entry(self, entry: Entry):
+        """
+        exibe os dados de uma entry
+        """
+
         self.label_id.setText(entry.id)
         self.label_type.setText(entry.type)
         self.label_created_at.setText(entry.created_at)
         # TODO: fields
 
-        self.form.register_field('title', 'lorem ipsum')
+        self.form.clear() # limpar o formulário antigo antes de reconstruir
+
+        # obtém os fields que a entry tem e registra cada um
+        # com um label pra chave e um input pro valor
+        for key, value in entry.fields.items():
+            self.form.register_field(key, value)
 
 class FieldsForm(QWidget):
     # TODO: documentação
@@ -113,6 +122,14 @@ class FieldsForm(QWidget):
 
         return input
 
+    def clear(self):
+        """
+        enquanto ainda existir um row presente no formulário, remove ele
+        """
+
+        while self.form_layout.rowCount():
+            self.form_layout.removeRow(0)
+
 class FileTree(QWidget):
     # TODO: documentação
     def __init__(self, root: Path, parent=None):
@@ -136,9 +153,13 @@ class FileTree(QWidget):
         layout.addWidget(self.tree)
 
     def set_focus(self, path: Path):
+        """
+        foca em um item da árvore caso ele seja válido
+        """
+
         index = self.model.index(str(path))
 
         if index.isValid():
             self.tree.setCurrentIndex(index)
-            self.tree.setFocus()
-            self.tree.scrollTo(index)
+            self.tree.setFocus() # focar
+            # self.tree.scrollTo(index) # scrollar
