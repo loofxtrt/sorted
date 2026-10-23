@@ -104,7 +104,7 @@ class Inspector(QWidget):
         self.readonly_form.label_id.setText(entry.id)
         self.readonly_form.label_type.setText(entry.type)
         self.readonly_form.label_created_at.setText(entry.created_at)
-        # TODO: fields
+        self.readonly_form.label_reference.setText(entry.reference) # TODO: fazer ser editável. talvez os outros também
 
         self.fields_form.clear() # limpar o formulário antigo antes de reconstruir
 
@@ -263,6 +263,7 @@ class ReadonlyForm(GroupedForm):
         self.label_type = self.register_row('Type')
         self.label_id = self.register_row('ID')
         self.label_created_at = self.register_row('Created at')
+        self.label_reference = self.register_row('Reference')
 
 class FileTree(QWidget):
     """
