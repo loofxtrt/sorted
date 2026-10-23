@@ -1,7 +1,7 @@
 import numbers
 from pathlib import Path
 
-from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QLabel, QLineEdit, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
+from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
 from PyQt6.QtGui import QFileSystemModel
 
 from src.managers.models import Entry
@@ -50,28 +50,32 @@ class Inspector(QWidget):
 
         layout = QVBoxLayout(self)
 
-        self.label_title = self.register_value_label('title', layout)
+        # self.label_title = self.register_value_label('title', layout)
         self.label_type = self.register_value_label('type', layout)
         self.label_id = self.register_value_label('id', layout)
         self.label_created_at = self.register_value_label('created at', layout)
-        self.label_fields = self.register_value_label('fields', layout)
+        # self.label_fields = self.register_value_label('Fields', layout)
 
-        self.form = FieldsForm()
-        layout.addWidget(self.form)
+        fields_group = QGroupBox('Fields')
+        self.form = FieldsForm(fields_group)
+        # layout.addWidget(self.form)
+        layout.addWidget(fields_group)
 
-    def register_value_label(self, placeholder: str, layout: QHBoxLayout | QVBoxLayout):
+        layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
+
+    def register_value_label(self, text: str, layout: QHBoxLayout | QVBoxLayout):
         """
         registra um label pra mostrar uma informação no inspector e retorna ele
 
         args:
-            placeholder:
+            text:
                 texto padrão do label
 
             layout:
                 layout em que o label deve ser adicionado
         """
 
-        label = QLabel(placeholder)
+        label = QLabel(text)
         layout.addWidget(label)
 
         return label
@@ -121,6 +125,9 @@ class FieldsForm(QWidget):
         self.form_layout.addRow(label_text, input)
 
         return input
+
+    def register_readonly(self, label_text: str, data: str):
+        self.form_layout.addRow(label_text, data)
 
     def clear(self):
         """
