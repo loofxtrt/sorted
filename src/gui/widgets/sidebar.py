@@ -50,19 +50,31 @@ class Inspector(QWidget):
 
         layout = QVBoxLayout(self)
 
-        readonly_group = QGroupBox('Properties')
-        readonly_layout = QVBoxLayout(readonly_group)
-        # self.label_title = self.register_value_label('title', layout)
-        self.label_type = self.register_value_label('type', readonly_layout)
-        self.label_id = self.register_value_label('id', readonly_layout)
-        self.label_created_at = self.register_value_label('created at', readonly_layout)
-        readonly_layout.addStretch()
-        layout.addWidget(readonly_group)
+        self.readonly = self.compose_readonly()
+        layout.addWidget(self.readonly)
 
         self.form = FieldsForm()
         layout.addWidget(self.form)
 
         layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
+
+    def compose_readonly(self) -> QGroupBox:
+        """
+        compõe e retorna o grupo que exibe os valores de uma entry que não são alteráveis pela ui
+        """
+
+        group = QGroupBox('Properties')
+        layout = QVBoxLayout(group)
+
+        # self.label_title = self.register_value_label('title', layout)
+        self.label_type = self.register_value_label('type', layout)
+        self.label_id = self.register_value_label('id', layout)
+        self.label_created_at = self.register_value_label('created at', layout)
+
+        layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
+        layout.addWidget(group)
+
+        return group
 
     def register_value_label(self, text: str, layout: QHBoxLayout | QVBoxLayout):
         """
