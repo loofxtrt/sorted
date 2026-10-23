@@ -209,14 +209,29 @@ class Collection:
         return cls.from_dict(data, file)
 
     def write_entry(self, entry: Entry):
+        """
+        adiciona uma entry na collection, tanto em memória quanto em disco
+        """
+
         # atualiza a memória primeiro, inserindo a entry nova
         self.entries[entry.id] = entry
 
-        # converte os dados já atualizados e reescreve eles
-        json_io.write_json(self.file, self.to_dict())
+        # depois salva no disco
+        self.save_state()
 
     def erase_entry(self, entry_id: str):
+        """
+        remove uma entry da collection, tanto em memória quanto em disco
+        """
+
         self.entries.pop(entry_id, None)
+        self.save_state()
+
+    def save_state(self):
+        """
+        salva o estado atual da collection em disco
+        """
+
         json_io.write_json(self.file, self.to_dict())
 
 

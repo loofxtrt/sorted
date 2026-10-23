@@ -55,6 +55,18 @@ class Controller:
 
         logger.info(f'erased {len(ids)} entr{"y" if len(ids) == 1 else "ies"}')
 
+    def write_fields(self, fields: dict, entry: Entry):
+        """
+        atualiza os fields e salva eles em disco
+
+        args:
+            fields:
+                fields novos a serem escritos
+        """
+
+        entry.fields = fields
+        self.collection.save_state()
+
 class MainWindow(QMainWindow):
     def __init__(self, scol: Path, root: Path):
         logger.info(f'initializing main window with collection: {scol}')
@@ -101,8 +113,6 @@ class MainWindow(QMainWindow):
         self.central.header.button_remove.clicked.connect(self.action_remove)
 
         # inputs
-#         self.button_insert = QPushButton('Insert')
-#         self.button_remove = QPushButton('Remove')
 #         self.button_move = QPushButton('Move')
 #         self.button_copy = QPushButton('Copy')
 #         self.button_edit = QPushButton('Edit')
@@ -110,12 +120,6 @@ class MainWindow(QMainWindow):
 #         self.button_remove.clicked.connect(self.action_remove)
 #         # self.button_insert.clicked.connect(self.action_insert)
 #         self.button_move.clicked.connect(self.action_move)
-
-        # TODO
-        self.combo_box_type = QComboBox()
-        #self.combo_box_type.setCurrentText('youtube.video')
-
-        self.input_insert = QLineEdit()
 
         # info
         self.label_title = QLabel()
@@ -131,71 +135,15 @@ class MainWindow(QMainWindow):
 
         # file tree
         # self.root = str(root) # carregar o último root que foi usado
-        self.button_root = QPushButton('Change vault')
-        self.button_root.clicked.connect(self.action_pick_root)
+        # self.button_root = QPushButton('Change vault')
+        # self.button_root.clicked.connect(self.action_pick_root)
 
         self.model = None # tem que ser self pq é importante pra operações com a file tree
         # self.file_tree = self.compose_file_tree()
         self.central.sidebar.file_tree.tree.clicked.connect(self.action_change_collection)
-
-        self.button_create = QPushButton('New collection')
-        self.button_create.clicked.connect(self.action_create_collection)
-
-        # widget_sidebar = QWidget()
-        # widget_sidebar.setMaximumWidth(350) # é definido no widget inteiro, não só na file tree
-        # sidebar = QVBoxLayout(widget_sidebar)
-
-        # sidebar.addWidget(self.file_tree)
-        # sidebar.addWidget(self.button_create)
-        # sidebar.addWidget(self.button_root)
-
-#     def setup(self):
-#         # definir como os contents vão ser exibidos
-#         # na ordem vertical, primeiro o barra do topo, depois a lista etc.
-#         # widget_contents = QWidget()
-#         # contents = QVBoxLayout(widget_contents)
 #
-#         # LAYOUT
-#         ## vertical. ex: header -> central logo embaixo
-#         contents = QWidget()
-#         contents_layout = (QVBoxLayout(contents))
-#
-#         self.header = Header()
-#         contents_layout.addWidget(self.header)
-#
-#         ### lista
-#         self.qlist = QListWidget()
-#         self.qlist.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-#
-#         contents_layout.addWidget(self.qlist, 1)
-#
-#         self.load_list_contents() # carregar o conteúdo pela primeira vez
-#
-#         ## horizontal. ex: sidebar -> conteúdo
-#         central = QWidget()
-#         central_layout = QHBoxLayout(central)
-#         self.setCentralWidget(central)
-#
-#         self.sidebar = Sidebar(root=self.root)
-#         central_layout.addWidget(self.sidebar)
-#
-#         central_layout.addWidget(contents, 1)
-
-#     def compose_file_tree(self) -> QTreeWidget:
-#         self.model = QFileSystemModel()
-#         self.model.setRootPath(self.root)
-#
-#         tree = QTreeView()
-#         tree.setModel(self.model)
-#
-#         tree.setRootIndex(self.model.index(self.root))
-#
-#         tree.setHeaderHidden(True)
-#         tree.hideColumn(1)
-#         tree.hideColumn(2)
-#         tree.hideColumn(3)
-#
-#         return tree
+#         self.button_create = QPushButton('New collection')
+#         self.button_create.clicked.connect(self.action_create_collection)
 
     def on_current_entry_changed(self):
         """
