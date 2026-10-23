@@ -1,5 +1,5 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QListWidgetItem, QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QAbstractItemView
+from PyQt6.QtWidgets import QListWidgetItem, QSplitter, QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QAbstractItemView
 from pathlib import Path
 
 from src.gui.widgets.header import Header
@@ -18,11 +18,13 @@ class Central(QWidget):
     def __init__(self, root: Path, parent=None) -> None:
         super().__init__(parent)
 
-        # horizontal. ex: sidebar -> conteúdo
+        # splitter pra sidebar inteira ser redimensionável
         layout = QHBoxLayout(self)
+        splitter = QSplitter(Qt.Orientation.Horizontal, self)
 
+        # horizontal. ex: sidebar -> conteúdo
         self.sidebar = Sidebar(root=root)
-        layout.addWidget(self.sidebar)
+        splitter.addWidget(self.sidebar)
 
         # vertical. ex: header -> central logo embaixo
         self.contents = QWidget()
@@ -31,7 +33,10 @@ class Central(QWidget):
         self.compose_header()
         self.compose_contents()
 
-        layout.addWidget(self.contents, 1)
+        splitter.addWidget(self.contents)
+
+        # adicionar o splitter
+        layout.addWidget(splitter)
 
     def compose_header(self):
         """

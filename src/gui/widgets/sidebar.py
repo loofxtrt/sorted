@@ -1,9 +1,9 @@
 from pathlib import Path
 import numbers
 
-from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
+from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QSplitter, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
 from PyQt6.QtGui import QColor, QFileSystemModel, QPalette
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 
 from src.managers.models import Entry
 
@@ -20,20 +20,24 @@ class Sidebar(QWidget):
     def __init__(self, root: Path, parent=None) -> None:
         super().__init__(parent)
 
+        # splitter pra cada painél ser redimensionável
         layout = QHBoxLayout(self)
+        splitter = QSplitter(Qt.Orientation.Horizontal, self)
 
-        self.vault_widget = QWidget()
-        layout.addWidget(self.vault_widget)
+        # self.entry_widget = QWidget()
+        # splitter.addWidget(self.entry_widget)
 
-        self.entry_widget = QWidget()
-        layout.addWidget(self.entry_widget)
-
+        # árvore de arquivos
         # self.file_tree = self.compose_file_tree(str(root))
         self.file_tree = FileTree(root=root)
-        layout.addWidget(self.file_tree)
+        splitter.addWidget(self.file_tree)
 
+        # inspetor de entries
         self.inspector = Inspector()
-        layout.addWidget(self.inspector)
+        splitter.addWidget(self.inspector)
+
+        # adicionar o splitter
+        layout.addWidget(splitter)
 
 #     def compose_file_tree(self, root: str) -> QTreeView:
 #         # TODO: documentação
