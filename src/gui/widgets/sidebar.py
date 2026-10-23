@@ -2,7 +2,7 @@ import numbers
 from pathlib import Path
 
 from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
-from PyQt6.QtGui import QFileSystemModel, QPalette
+from PyQt6.QtGui import QColor, QFileSystemModel, QPalette
 
 from src.managers.models import Entry
 
@@ -110,7 +110,22 @@ class GroupedForm(QWidget):
         """
 
         label = QLabel(key)
-        label.setForegroundRole(QPalette.ColorRole.PlaceholderText) # cor semi-apagada
+        # label.setForegroundRole(QPalette.ColorRole.PlaceholderText) # cor semi-apagada
+
+        # calcular uma cor semi-apagada
+        # copiado do código fonte do kde dolphin
+        palette = label.palette()
+        text = palette.color(QPalette.ColorRole.Base)
+        background = palette.color(QPalette.ColorRole.Text)
+        factor_1 = 0.2
+        factor_2 = 0.8
+        secondary = QColor(
+            round(text.red() * factor_1 + background.red() * factor_2),
+            round(text.green() * factor_1 + background.green() * factor_2),
+            round(text.blue() * factor_1 + background.blue() * factor_2)
+        )
+        palette.setColor(QPalette.ColorRole.WindowText, secondary)
+        label.setPalette(palette)
 
         return label
 
