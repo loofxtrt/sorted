@@ -81,6 +81,7 @@ class MainWindow(QMainWindow):
         self.central = Central(parent=self, root=self.root)
         self.setCentralWidget(self.central)
         self.load_list_contents() # carregar o conteúdo pela primeira vez
+        self.central.sidebar.file_tree.set_focus(self.scol) # fazer a árvore focar no scol atual
 
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
 
@@ -335,6 +336,8 @@ class MainWindow(QMainWindow):
         #    return
 
         logger.info(f'changing collection: {self.scol} to {dest}')
+
+        self.central.sidebar.file_tree.set_focus(dest)
 
         self.scol = dest
         self.collection = Collection.from_file(self.scol)

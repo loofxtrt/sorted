@@ -114,6 +114,7 @@ class FieldsForm(QWidget):
         return input
 
 class FileTree(QWidget):
+    # TODO: documentação
     def __init__(self, root: Path, parent=None):
         super().__init__(parent)
 
@@ -133,3 +134,11 @@ class FileTree(QWidget):
         # inserção
         layout = QVBoxLayout(self)
         layout.addWidget(self.tree)
+
+    def set_focus(self, path: Path):
+        index = self.model.index(str(path))
+
+        if index.isValid():
+            self.tree.setCurrentIndex(index)
+            self.tree.setFocus()
+            self.tree.scrollTo(index)
