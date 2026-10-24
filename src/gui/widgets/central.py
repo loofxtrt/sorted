@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QLabel, QListWidgetItem, QSplitter, QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QAbstractItemView
 from pathlib import Path
 
@@ -78,14 +78,7 @@ class EntryWidgetContainer:
 
         self.item = QListWidgetItem()
         self.item.setData(Qt.ItemDataRole.UserRole, self.entry.id) # inserir os dados ocultos # TODO: testar guardando Entry inteira
-        # self.item.setSizeHint(self.external_container.sizeHint()) # mudar o tamanho do item pra comportar o conteúdo
-
-        spacing = 10
-        hint = self.external_container.sizeHint()
-        self.item.setSizeHint(
-            QSize(hint.width() + spacing, hint.height() + spacing )
-        ) # mudar o tamanho do item pra comportar o conteúdo
-        self.external_container_layout.setContentsMargins(0, spacing, 0, spacing)
+        self.item.setSizeHint(self.external_container.sizeHint()) # mudar o tamanho do item pra comportar o conteúdo
 
     def add_to_qlistwidget(self, qlistwidget: QListWidget):
         qlistwidget.addItem(self.item)
@@ -122,8 +115,19 @@ class ContentList(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        # self.setSpacing(10)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection) # poder selecionar múltiplos itens
+
+        # TODO: arrumar esse spacing
+        self.setSpacing(10)
+        # self.setStyleSheet("""
+        #     QListWidget::item:hover,
+        #         QListWidget::item:selected,
+        #         QListWidget::item:selected:hover,
+        #         QListWidget::item:selected:!active {
+        #         background: transparent;
+        #         outline: none;
+        #     }
+        # """)
 
 #     def insert(self, userrole: str, entry_widget: QWidget):
 #         """
