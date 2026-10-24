@@ -8,6 +8,7 @@ from ...managers.models import Module, Vault, Entry
 from ...utils.generic import is_image
 
 class LocalModule(Module):
+    # TODO: documentação
     def __init__(self, vault: Vault):
         super().__init__(
             id='local',

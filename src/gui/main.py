@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QLineEdit, QLabel, QFileDialog, QInputDialog, QComboBox,
     QWidget, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeView, QTabWidget
 )
-from PyQt6.QtGui import QFileSystemModel, QFont, QIcon, QPixmap
+from PyQt6.QtGui import QFileSystemModel, QFont, QIcon, QKeySequence, QPixmap, QShortcut
 from PyQt6.QtCore import Qt, QSize
 
 from src.gui.widgets.central import Central
@@ -194,6 +194,10 @@ class MainWindow(QMainWindow):
         self.model = None # tem que ser self pq é importante pra operações com a file tree
         self.central.sidebar.file_tree.tree.clicked.connect(self.action_change_collection)
 
+        # shortcuts
+        shortcut = QShortcut(QKeySequence.StandardKey.Delete, self.central.qlist)
+        shortcut.activated.connect(self.action_remove)
+
         # info
 #         self.label_title = QLabel()
 #         self.label_entry_count = QLabel()
@@ -270,11 +274,11 @@ class MainWindow(QMainWindow):
         """
         repassa pro controller a alteração de um metadata da entry atual
         não faz nada se não houver entry atual
-        
+
         args:
             key:
                 key visual do metadata que foi alterado
-        
+
             value:
                 novo valor do metadata
         """
