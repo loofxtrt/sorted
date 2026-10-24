@@ -13,6 +13,8 @@
 - [ ] botão de inserção de um novo field
 - [ ] botão de mudança de tipo de field
 - [ ] tags
+- [ ] links clicáveis customizaados nos fields
+- [ ] link externo como parte do utils.qt
 
 - [ ] padronização de imports (absoluto/relativo)
 

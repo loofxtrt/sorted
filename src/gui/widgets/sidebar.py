@@ -1,7 +1,7 @@
 from pathlib import Path
 import numbers
 
-from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QSizePolicy, QSplitter, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
+from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QPushButton, QSizePolicy, QSplitter, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
 from PyQt6.QtGui import QColor, QFileSystemModel, QPalette
 from PyQt6.QtCore import QSignalBlocker, Qt, pyqtSignal
 
@@ -72,6 +72,12 @@ class Inspector(QWidget):
         self.metadata_form = MetadataForm()
         layout.addWidget(self.metadata_form)
 
+        # TODO
+        # fields_container = QWidget()
+        # fields_container_layout = QVBoxLayout(fields_container)
+        # self.fields_form = FieldsForm()
+        # fields_container_layout.addWidget(self.fields_form)
+        # layout.addWidget(fields_container)
         self.fields_form = FieldsForm()
         layout.addWidget(self.fields_form)
 
@@ -98,6 +104,9 @@ class Inspector(QWidget):
         # com um label pra chave e um input pro valor
         for key, value in entry.fields.items():
             self.fields_form.register_input_row(key, value)
+
+        # botão de field novo
+        self.fields_form.register_button_row('New field')
 
 class GroupedForm(QWidget):
     """
@@ -199,6 +208,7 @@ class GroupedForm(QWidget):
         input = QLineEdit()
         input_row_changed_callback = lambda v, k=key: self.input_row_changed.emit(k, v)
 
+        # TODO: documentação
         if isinstance(value, bool):
             input = QCheckBox()
             input.setChecked(value)
@@ -222,15 +232,21 @@ class GroupedForm(QWidget):
 
         return input
 
+    def register_button_row(self, text: str):
+        # TODO: documentação
+        self.form_layout.addRow(QPushButton(text))
+
     def clear(self):
         """
         enquanto ainda existir um row presente no formulário, remove ele
         """
 
+        # TODO: documentação
         while self.form_layout.rowCount():
             self.form_layout.removeRow(0)
 
 class MetadataForm(GroupedForm):
+    # TODO: documentação
     def __init__(self, parent=None, group_label: str = 'Metadata'):
         super().__init__(parent, group_label)
 
@@ -240,6 +256,7 @@ class MetadataForm(GroupedForm):
         self.input_reference = self.register_input_row('Reference')
 
 class FieldsForm(GroupedForm):
+    # TODO: documentação
     def __init__(self, parent=None, group_label: str = 'Fields'):
         super().__init__(parent, group_label)
 
