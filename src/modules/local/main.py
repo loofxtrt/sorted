@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
 
-from src.utils.qt import set_pixmap_size
+from src.utils.qt import image_to_pixmap, label_with_pixmap, set_pixmap_size
 
 from ...managers.models import Module, Vault, Entry
 from ...utils.generic import is_image
@@ -27,12 +27,12 @@ class LocalModule(Module):
         widget.setLayout(layout)
 
         # adicionar uma thumbnail caso seja uma imagem
-        if is_image(path):
-            pixmap = QPixmap(str(path))
+        if path.is_file() and is_image(path):
+            # TODO: fallback
+            pixmap = image_to_pixmap(path, validate_image=False)
             pixmap = set_pixmap_size(pixmap)
-            
-            thumbnail = QLabel()
-            thumbnail.setPixmap(pixmap)
+
+            thumbnail = label_with_pixmap(pixmap)
 
             layout.addWidget(thumbnail)
 

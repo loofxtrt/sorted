@@ -108,5 +108,7 @@ def is_image(file: Path) -> bool:
             f.verify()
 
         return True
-    except (IOError, SyntaxError):
+    # except (IOError, SyntaxError):
+    except Exception:
+        # logger.warning(f'erro ao validar o arquivo {file} como imagem: {e}')
         return False

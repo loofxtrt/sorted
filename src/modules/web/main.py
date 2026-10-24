@@ -8,7 +8,7 @@ import tldextract
 
 from src.managers.models import Entry, Module, Vault
 from src.utils.generic import ensure_directory
-from src.utils.qt import image_to_label, set_pixmap_size
+from src.utils.qt import image_to_pixmap, label_with_pixmap, set_pixmap_size
 from src import logger
 
 
@@ -21,6 +21,10 @@ class WebModule(Module):
             vault=vault,
             supported_types=['page']
         )
+
+    @property
+    def favicons_directoy(self) -> Path:
+        return self.container / 'favicons'
 
     def get_favicon(self, url: str, size: int=32) -> Path | None:
 #         icons = favicon.get(url)
@@ -40,12 +44,9 @@ class WebModule(Module):
         domain = tldextract.extract(url).registered_domain
         favicon_via_google = f'https://www.google.com/s2/favicons?domain={domain}&sz={size}'
 
-        path = self.container / 'favicons' / f'{domain}.png'
-
+        path = self.favicons_directoy / f'{domain}.png'
         if path.exists():
             return path
-
-        ensure_directory(path)
 
         try:
             headers = {'User-Agent': 'Mozilla/5.0'}
@@ -66,8 +67,9 @@ class WebModule(Module):
 
         # TODO: fallback
         favicon_file = self.get_favicon(url)
-        favicon_label = image_to_label(favicon_file)
-        favicon_label.pixmap = set_pixmap_size(favicon_label.pixmap, 32)
+        favicon_pixmap = image_to_pixmap(favicon_file)
+        favicon_pixmap = set_pixmap_size(favicon_pixmap, 32)
+        favicon_label = label_with_pixmap(favicon_pixmap)
 
         url_label = QLabel(url) # TODO: fazer ser editável aqui também?
 

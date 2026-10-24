@@ -17,13 +17,15 @@ def set_pixmap_size(pixmap: QPixmap, width: int=100, height: int | None = None) 
         Qt.TransformationMode.SmoothTransformation # anti-aliasing TODO: fazer ser desligável
     )
 
-def image_to_label(file: Path) -> QLabel | None:
-    if is_image(file):
-        pixmap = QPixmap(str(file))
+def image_to_pixmap(file: Path, validate_image: bool = True) -> QPixmap | None:
+    if validate_image:
+        if not is_image(file):
+            return None
 
-        label = QLabel()
-        label.setPixmap(pixmap)
+    return QPixmap(str(file))
 
-        return label
+def label_with_pixmap(pixmap: QPixmap) -> QLabel | None:
+    label = QLabel()
+    label.setPixmap(pixmap)
 
-    return None
+    return label
