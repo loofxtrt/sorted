@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
 
+from src.gui.widgets.components import SMALLER_FONT, set_secondary_text_palette
 from src.utils.qt import image_to_pixmap, label_with_pixmap, set_pixmap_size
 
 from ...managers.models import Module, Vault, Entry
@@ -23,6 +24,8 @@ class LocalModule(Module):
     def build_entry_widget(self, entry: Entry) -> QWidget:
         path = Path(entry.reference)
 
+        details_text = None
+
         # layout
         layout = QVBoxLayout()
         widget = QWidget()
@@ -30,7 +33,7 @@ class LocalModule(Module):
 
         if path.is_file():
             name_text = path.name
-            details_text = str(path.stat().st_size)
+            # details_text = str(path.stat().st_size) # tamanho do arquivo
 
             if is_image(path):
                 # adicionar uma thumbnail caso seja uma imagem
@@ -49,8 +52,14 @@ class LocalModule(Module):
         name_label = QLabel(name_text)
         layout.addWidget(name_label)
 
-        # label com detalhes
-        details_label = QLabel(details_text)
-        layout.addWidget(details_label)
+        # label com detalhes do arquivo
+        # só é adicionado se dados de detalhes existirem
+        if details_text:
+            details_label = QLabel(details_text)
+            details_label.setFont(SMALLER_FONT)
+
+            set_secondary_text_palette(details_label)
+
+            layout.addWidget(details_label)
 
         return widget
