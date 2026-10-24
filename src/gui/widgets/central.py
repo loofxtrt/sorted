@@ -1,4 +1,4 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import QLabel, QListWidgetItem, QSplitter, QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QAbstractItemView
 from pathlib import Path
 
@@ -70,6 +70,7 @@ class EntryWidgetContainer:
         self.external_container = QWidget()
         self.external_container_layout = QVBoxLayout(self.external_container)
         self.external_container_layout.addWidget(self.inner_container)
+        self.set_style()
 
         details_label = QLabel(f'{entry.module}:{entry.type}') # TODO: fazer esse tipo:de:formatação via func utilitária
         details_label.setFont(SMALLER_FONT)
@@ -77,11 +78,38 @@ class EntryWidgetContainer:
 
         self.item = QListWidgetItem()
         self.item.setData(Qt.ItemDataRole.UserRole, self.entry.id) # inserir os dados ocultos # TODO: testar guardando Entry inteira
-        self.item.setSizeHint(self.external_container.sizeHint()) # mudar o tamanho do item pra comportar o conteúdo
+        # self.item.setSizeHint(self.external_container.sizeHint()) # mudar o tamanho do item pra comportar o conteúdo
+
+        spacing = 10
+        hint = self.external_container.sizeHint()
+        self.item.setSizeHint(
+            QSize(hint.width() + spacing, hint.height() + spacing )
+        ) # mudar o tamanho do item pra comportar o conteúdo
+        self.external_container_layout.setContentsMargins(0, spacing, 0, spacing)
 
     def add_to_qlistwidget(self, qlistwidget: QListWidget):
         qlistwidget.addItem(self.item)
         qlistwidget.setItemWidget(self.item, self.external_container)
+
+    def set_style(self):
+#         self.inner_container_layout.setContentsMargins(0, 0, 0, 0)
+#         self.inner_container_layout.setSpacing(0)
+#
+#         self.external_container_layout.setContentsMargins(8, 8, 8, 8)
+#         self.external_container_layout.setSpacing(4)
+
+        self.external_container.setProperty('class', 'entry')
+        self.external_container.setStyleSheet("""
+            QWidget[class="entry"] {
+                border: 1px solid palette(midlight);
+                border-radius: 5px;
+                background-color: palette(window);
+            }
+
+            QWidget[class="entry"]:hover {
+                border-color: palette(highlight)
+            }
+        """)
 
 
 class ContentList(QListWidget):
@@ -94,6 +122,7 @@ class ContentList(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        # self.setSpacing(10)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection) # poder selecionar múltiplos itens
 
 #     def insert(self, userrole: str, entry_widget: QWidget):

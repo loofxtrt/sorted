@@ -325,18 +325,18 @@ class MainWindow(QMainWindow):
             # cores de borda: midlight/shadow
             # cores de fundo: window
             # FIXME: especificar o estilo aqui, quebra o estilo do widget de erro
-            result.setProperty('class', 'entry')
-            result.setStyleSheet("""
-                QWidget[class="entry"] {
-                    border: 1px solid palette(midlight);
-                    border-radius: 5px;
-                    background-color: palette(window);
-                }
-
-                QWidget[class="entry"]:hover {
-                    border-color: palette(highlight)
-                }
-            """)
+#             result.setProperty('class', 'entry')
+#             result.setStyleSheet("""
+#                 QWidget[class="entry"] {
+#                     border: 1px solid palette(midlight);
+#                     border-radius: 5px;
+#                     background-color: palette(window);
+#                 }
+#
+#                 QWidget[class="entry"]:hover {
+#                     border-color: palette(highlight)
+#                 }
+#             """)
 #             result.setStyleSheet("""
 #                 QWidget[class="entry"] {
 #                     border: 1px solid palette(midlight);
