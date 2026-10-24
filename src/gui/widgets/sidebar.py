@@ -210,7 +210,10 @@ class GroupedForm(QWidget):
 
             input.valueChanged.connect(input_row_changed_callback)
         else:
-            input.setText(str(value))
+            if value is not None:
+                input.setText(str(value))
+            else:
+                input.setText('')
 
             input.textEdited.connect(input_row_changed_callback)
 

@@ -4,3 +4,4 @@
 - [ ] migrar controller do main pro managers.controller
 - [ ] tamanho fixo pros elementos da sidebar
 - [ ] cache/registro de tamanho dos splitters
+- [ ] atualização visual ao editar dados de uma entry
