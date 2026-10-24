@@ -3,7 +3,7 @@ import numbers
 
 from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QSizePolicy, QSplitter, QVBoxLayout, QWidget, QTabWidget, QHBoxLayout, QTreeView
 from PyQt6.QtGui import QColor, QFileSystemModel, QPalette
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import QSignalBlocker, Qt, pyqtSignal
 
 from src.managers.models import Entry
 
@@ -69,33 +69,13 @@ class Inspector(QWidget):
 
         layout = QVBoxLayout(self)
 
-        self.readonly_form = ReadonlyForm()
-        layout.addWidget(self.readonly_form)
+        self.metadata_form = MetadataForm()
+        layout.addWidget(self.metadata_form)
 
         self.fields_form = FieldsForm()
         layout.addWidget(self.fields_form)
 
         layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
-
-    def register_value_label(self, text: str, layout: QHBoxLayout | QVBoxLayout) -> QLabel:
-        """
-        registra um label pra mostrar uma informação no inspector e retorna ele
-
-        args:
-            text:
-                texto padrão do label
-
-            layout:
-                layout em que o label deve ser adicionado
-
-        returns:
-            o label criado
-        """
-
-        label = QLabel(text)
-        layout.addWidget(label)
-
-        return label
 
     def open_entry(self, entry: Entry):
         """
@@ -106,17 +86,18 @@ class Inspector(QWidget):
                 entry cujos dados serão exibidos nos formulários
         """
 
-        self.readonly_form.label_id.setText(entry.id)
-        self.readonly_form.label_type.setText(entry.type)
-        self.readonly_form.label_created_at.setText(entry.created_at)
-        self.readonly_form.label_reference.setText(entry.reference) # TODO: fazer ser editável. talvez os outros também
+        # atualizar os labels que exibem os dados
+        self.metadata_form.label_id.setText(entry.id)
+        self.metadata_form.label_type.setText(entry.type)
+        self.metadata_form.label_created_at.setText(entry.created_at)
+        self.metadata_form.input_reference.setText(entry.reference)
 
         self.fields_form.clear() # limpar o formulário antigo antes de reconstruir
 
         # obtém os fields que a entry tem e registra cada um
         # com um label pra chave e um input pro valor
         for key, value in entry.fields.items():
-            self.fields_form.register_row(key, value)
+            self.fields_form.register_input_row(key, value)
 
 class GroupedForm(QWidget):
     """
@@ -125,7 +106,13 @@ class GroupedForm(QWidget):
     args:
         group_label:
             título exibido no topo do grupo
+
+    signals:
+        input_row_changed:
+            emitido quando o valor de um input muda, com a chave do field e o novo valor
     """
+
+    input_row_changed = pyqtSignal(str, object)
 
     # TODO: documentação
     def __init__(self, parent=None, group_label: str = ''):
@@ -166,9 +153,9 @@ class GroupedForm(QWidget):
 
         return label
 
-    def register_row(self, key: str, value: str = '') -> QLabel:
+    def register_label_row(self, key: str, value: str = '') -> QLabel:
         """
-        registra um row no formulário
+        registra um row de label no formulário
 
         args:
             key:
@@ -189,32 +176,7 @@ class GroupedForm(QWidget):
 
         return value_label
 
-    def clear(self):
-        """
-        enquanto ainda existir um row presente no formulário, remove ele
-        """
-
-        while self.form_layout.rowCount():
-            self.form_layout.removeRow(0)
-
-class FieldsForm(GroupedForm):
-    """
-    formulário de fields editáveis de uma entry
-
-    signals:
-        field_changed:
-            emitido quando o valor de um input muda, com a chave do field e o novo valor
-    """
-
-    field_changed = pyqtSignal(str, object)
-
-    # TODO: documentação
-    def __init__(self, parent=None):
-        super().__init__(parent, group_label='Fields')
-
-    # TODO: suporte à sub-dict?
-    # TODO: keys editáveis
-    def register_row(
+    def register_input_row(
         self,
         key: str,
         value: type[str] | type[bool] | type[numbers.Number] | None = None
@@ -235,40 +197,48 @@ class FieldsForm(GroupedForm):
         """
 
         input = QLineEdit()
-        field_changed_callback = lambda v, k=key: self.field_changed.emit(k, v)
+        input_row_changed_callback = lambda v, k=key: self.input_row_changed.emit(k, v)
 
         if isinstance(value, bool):
             input = QCheckBox()
             input.setChecked(value)
 
-            input.toggled.connect(field_changed_callback)
+            input.toggled.connect(input_row_changed_callback)
         elif isinstance(value, numbers.Number):
             input = QDoubleSpinBox()
             input.setValue(value)
 
-            input.valueChanged.connect(field_changed_callback)
+            input.valueChanged.connect(input_row_changed_callback)
         else:
             input.setText(str(value))
 
-            input.textChanged.connect(field_changed_callback)
+            input.textEdited.connect(input_row_changed_callback)
 
         # adicionar o input criado no layout e retornar ele
         self.form_layout.addRow(self.compose_key_label(key), input)
 
         return input
 
-class ReadonlyForm(GroupedForm):
-    """
-    campo que exibe os valores de uma entry que não são alteráveis pela ui
-    """
+    def clear(self):
+        """
+        enquanto ainda existir um row presente no formulário, remove ele
+        """
 
-    def __init__(self, parent=None):
-        super().__init__(parent, 'Properties')
+        while self.form_layout.rowCount():
+            self.form_layout.removeRow(0)
 
-        self.label_type = self.register_row('Type')
-        self.label_id = self.register_row('ID')
-        self.label_created_at = self.register_row('Created at')
-        self.label_reference = self.register_row('Reference')
+class MetadataForm(GroupedForm):
+    def __init__(self, parent=None, group_label: str = 'Metadata'):
+        super().__init__(parent, group_label)
+
+        self.label_type = self.register_label_row('Type')
+        self.label_id = self.register_label_row('ID')
+        self.label_created_at = self.register_label_row('Created at')
+        self.input_reference = self.register_input_row('Reference')
+
+class FieldsForm(GroupedForm):
+    def __init__(self, parent=None, group_label: str = 'Fields'):
+        super().__init__(parent, group_label)
 
 class FileTree(QWidget):
     """

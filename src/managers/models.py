@@ -286,7 +286,6 @@ class Collection:
         json_io.write_json(self.file, self.to_dict())
 
 
-
 class Module:
     """
     representa um plugin dentro de um vault

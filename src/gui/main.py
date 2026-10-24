@@ -107,6 +107,33 @@ class Controller:
 
         logger.success(f'fields updated: {entry.id}')
 
+    def write_metadata(self, entry: Entry, key: str, value: object):
+        """
+        atualiza um metadata editável da entry e salva o estado da collection em disco
+
+        ESSAS KEYS SÃO AS KEYS VISUAIS, NÃO AS DO JSON
+        SE A LABEL DE UM INPUT MOSTRAR 'Reference' PROCURAR POR 'reference' AQUI NÃO FUNCIONA
+
+        args:
+            entry:
+                entry cujo metadata será atualizado
+
+            key:
+                key visual do metadata que será atualizado (ex.: 'Reference')
+                keys não reconhecidas são ignoradas
+
+            value:
+                novo valor do metadata
+        """
+
+        if key == 'Reference':
+            entry.reference = str(value)
+
+        self.collection.save_state()
+
+        logger.success(f'metadata updated: {entry.id}')
+
+
 class MainWindow(QMainWindow):
     """
     janela principal da aplicação, que liga a interface, o vault e a collection aberta
@@ -160,7 +187,8 @@ class MainWindow(QMainWindow):
         self.central.qlist.currentItemChanged.connect(self.on_current_entry_changed)
         self.central.header.button_insert.clicked.connect(self.action_insert)
         self.central.header.button_remove.clicked.connect(self.action_remove)
-        self.central.sidebar.inspector.fields_form.field_changed.connect(self.on_field_changed)
+        self.central.sidebar.inspector.fields_form.input_row_changed.connect(self.on_fields_changed)
+        self.central.sidebar.inspector.metadata_form.input_row_changed.connect(self.on_metadata_changed)
 
         # file tree
         self.model = None # tem que ser self pq é importante pra operações com a file tree
@@ -217,7 +245,7 @@ class MainWindow(QMainWindow):
 
         self.central.sidebar.inspector.open_entry(entry)
 
-    def on_field_changed(self, key: str, value: object):
+    def on_fields_changed(self, key: str, value: object):
         """
         repassa pro controller a alteração de um field da entry atual
         não faz nada se não houver entry atual
@@ -237,6 +265,27 @@ class MainWindow(QMainWindow):
             return
 
         self.controller.write_fields(entry=entry, key=key, value=value)
+
+    def on_metadata_changed(self, key: str, value: object):
+        """
+        repassa pro controller a alteração de um metadata da entry atual
+        não faz nada se não houver entry atual
+        
+        args:
+            key:
+                key visual do metadata que foi alterado
+        
+            value:
+                novo valor do metadata
+        """
+
+        entry = self.get_currenty_entry()
+
+        # TODO: esses returns/a falta deles podem falhar silenciosamente. precisa de mais erros
+        if not entry:
+            return
+
+        self.controller.write_metadata(entry=entry, key=key, value=value)
 
     def load_list_contents(self):
         """
