@@ -19,6 +19,8 @@ class WebModule(Module):
     # TODO: documentação
     # TODO: documentação de pq plugins core não precisam de manifesto
     # TODO: mais logging
+    # TODO: texto de display da url ser editável via fields
+    # TODO: carregamento lazy em vez de baixar os favicons e só então exibir a tela
     def __init__(self, vault: Vault):
         super().__init__(
             id='web',
@@ -109,7 +111,9 @@ class WebModule(Module):
         favicon_pixmap = set_pixmap_size(favicon_pixmap, FAVICON_SIZE)
         favicon_label = label_with_pixmap(favicon_pixmap)
 
-        url_label = QLabel(url) # TODO: fazer ser editável aqui também?
+        # url_label = QLabel(url) # TODO: fazer ser editável aqui também?
+        url_label = QLabel(f'<a href="{url}">{url}</a>')
+        url_label.setOpenExternalLinks(True)
 
         widget = QWidget()
         layout = QHBoxLayout(widget)
