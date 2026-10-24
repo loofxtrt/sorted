@@ -314,20 +314,26 @@ class Module:
     def __init__(self, id: str, vault: Vault, supported_types: list):
         """
         inicializa o plugin e garante que a estrutura dele existe no disco
-
-        cada module cria uma pasta própria dentro de vault.modules_dir pra armazenar
-        dados, cache e arquivos internos
         """
 
         self.id = id
         self.vault = vault
         self.supported_types = supported_types
 
-        self.root = self.vault.modules_dir / id
-        ensure_directory(self.root)
-
-        self.manifest_file = self.root / normalize_json_file('manifest')
+        self.manifest_file = self.container / normalize_json_file('manifest')
         self.manifest_data = self.load_manifest()
+
+    @property
+    def container(self) -> Path:
+        """
+        cria ou obtém o diretório próprio do módulo dentro do vault
+        pra armazenar dados, cache e arquivos internos
+        """
+
+        container = self.vault.modules_dir / self.id
+        ensure_directory(container)
+
+        return container
 
     def load_manifest(self):
         """
