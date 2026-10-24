@@ -1,7 +1,8 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QListWidgetItem, QSplitter, QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QAbstractItemView
+from PyQt6.QtWidgets import QLabel, QListWidgetItem, QSplitter, QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QAbstractItemView
 from pathlib import Path
 
+from src.gui.widgets.components import SMALLER_FONT
 from src.gui.widgets.header import Header
 from src.gui.widgets.sidebar import Sidebar
 from src.managers.models import Entry
@@ -62,16 +63,25 @@ class EntryWidgetContainer:
     def __init__(self, entry: Entry, entry_widget: QWidget):
         self.entry = entry
 
-        self.container = QWidget()
-        self.container_layout = QVBoxLayout(self.container)
+        self.inner_container = QWidget()
+        self.inner_container_layout = QVBoxLayout(self.inner_container)
+        self.inner_container_layout.addWidget(entry_widget)
+
+        self.external_container = QWidget()
+        self.external_container_layout = QVBoxLayout(self.external_container)
+        self.external_container_layout.addWidget(self.inner_container)
+
+        details_label = QLabel(f'{entry.module}:{entry.type}') # TODO: fazer esse tipo:de:formatação via func utilitária
+        details_label.setFont(SMALLER_FONT)
+        self.external_container_layout.addWidget(details_label)
 
         self.item = QListWidgetItem()
         self.item.setData(Qt.ItemDataRole.UserRole, self.entry.id) # inserir os dados ocultos # TODO: testar guardando Entry inteira
-        self.item.setSizeHint(self.container.sizeHint()) # mudar o tamanho do item pra comportar o conteúdo
+        self.item.setSizeHint(self.external_container.sizeHint()) # mudar o tamanho do item pra comportar o conteúdo
 
     def add_to_qlistwidget(self, qlistwidget: QListWidget):
         qlistwidget.addItem(self.item)
-        qlistwidget.setItemWidget(self.item, self.container)
+        qlistwidget.setItemWidget(self.item, self.external_container)
 
 
 class ContentList(QListWidget):
@@ -86,34 +96,35 @@ class ContentList(QListWidget):
 
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection) # poder selecionar múltiplos itens
 
-    def insert(self, userrole: str, entry_widget: QWidget):
-        """
-        insere uma entry na lista
+#     def insert(self, userrole: str, entry_widget: QWidget):
+#         """
+#         insere uma entry na lista
+#
+#         args:
+#             userrole:
+#                 dados ocultos que ficam dentro do item na lista
+#                 ex.: o id da entry que esse item representa
+#
+#             entry_widget:
+#                 o widget já resolvido e construído da entry
+#                 fornecido pelo módulo responsável pela mesma
+#         """
+#
+#         container = QWidget()
+#         container_layout = QVBoxLayout(container)
+#         container_layout.addWidget(entry_widget) # TODO: classe entryWidget que contenha tanto o widget quanto a entry
+#
+#         item = QListWidgetItem()
+#         item.setData(Qt.ItemDataRole.UserRole, userrole) # inserir os dados ocultos
+#         item.setSizeHint(container.sizeHint()) # mudar o tamanho do item pra comportar o conteúdo
+#
+#         # adicionar o item na lista
+#         self.addItem(item)
+#         self.setItemWidget(item, container)
 
-        args:
-            userrole:
-                dados ocultos que ficam dentro do item na lista
-                ex.: o id da entry que esse item representa
-
-            entry_widget:
-                o widget já resolvido e construído da entry
-                fornecido pelo módulo responsável pela mesma
-        """
-
-        external_container = QWidget()
-        external_container_layout = QVBoxLayout(external_container)
-
-        container = QWidget()
-        container_layout = QVBoxLayout(container)
-        container_layout.addWidget(entry_widget) # TODO: classe entryWidget que contenha tanto o widget quanto a entry
-
-        item = QListWidgetItem()
-        item.setData(Qt.ItemDataRole.UserRole, userrole) # inserir os dados ocultos
-        item.setSizeHint(container.sizeHint()) # mudar o tamanho do item pra comportar o conteúdo
-
-        # adicionar o item na lista
-        self.addItem(item)
-        self.setItemWidget(item, container)
+    def insert(self, entry: Entry, entry_widget: QWidget):
+        container = EntryWidgetContainer(entry=entry, entry_widget=entry_widget)
+        container.add_to_qlistwidget(self)
 
     def get_selected_ids(self) -> list[str]:
         """

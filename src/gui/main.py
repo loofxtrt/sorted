@@ -344,7 +344,8 @@ class MainWindow(QMainWindow):
 #
 #                 }
 #             """)
-            self.central.qlist.insert(userrole=e.id, entry_widget=result)
+            # self.central.qlist.insert(userrole=e.id, entry_widget=result)
+            self.central.qlist.insert(entry=e, entry_widget=result)
 
             logger.success(f'entry builded as widget: {e.id}')
 
