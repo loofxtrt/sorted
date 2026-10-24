@@ -11,6 +11,8 @@ from ...utils.generic import is_image
 
 class LocalModule(Module):
     # TODO: documentação
+    # TODO: suporte a referências relativas
+    # TODO: details ser desligável
     def __init__(self, vault: Vault):
         super().__init__(
             id='local',
@@ -26,19 +28,29 @@ class LocalModule(Module):
         widget = QWidget()
         widget.setLayout(layout)
 
-        # adicionar uma thumbnail caso seja uma imagem
-        if path.is_file() and is_image(path):
-            # TODO: fallback
-            pixmap = image_to_pixmap(path, validate_image=False)
-            pixmap = set_pixmap_size(pixmap)
+        if path.is_file():
+            name_text = path.name
+            details_text = str(path.stat().st_size)
 
-            thumbnail = label_with_pixmap(pixmap)
+            if is_image(path):
+                # adicionar uma thumbnail caso seja uma imagem
+                # TODO: fallback
+                pixmap = image_to_pixmap(path, validate_image=False)
+                pixmap = set_pixmap_size(pixmap)
 
-            layout.addWidget(thumbnail)
+                thumbnail = label_with_pixmap(pixmap)
+
+                layout.addWidget(thumbnail)
+        else:
+            name_text = 'Reference error'
+            details_text = f'\'{path}\' is not a valid system file path'
 
         # label com o nome do arquivo
-        label = QLabel()
-        label.setText(path.name)
-        layout.addWidget(label)
+        name_label = QLabel(name_text)
+        layout.addWidget(name_label)
+
+        # label com detalhes
+        details_label = QLabel(details_text)
+        layout.addWidget(details_label)
 
         return widget
