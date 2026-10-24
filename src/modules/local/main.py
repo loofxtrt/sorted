@@ -4,6 +4,8 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
 
+from src.utils.qt import set_pixmap_size
+
 from ...managers.models import Module, Vault, Entry
 from ...utils.generic import is_image
 
@@ -27,13 +29,8 @@ class LocalModule(Module):
         # adicionar uma thumbnail caso seja uma imagem
         if is_image(path):
             pixmap = QPixmap(str(path))
-
-            pixmap = pixmap.scaled(
-                100, 100,
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation # anti-aliasing TODO: fazer ser desligável
-            )
-
+            pixmap = set_pixmap_size(pixmap)
+            
             thumbnail = QLabel()
             thumbnail.setPixmap(pixmap)
 

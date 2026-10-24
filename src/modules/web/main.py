@@ -6,9 +6,10 @@ from pathlib import Path
 import favicon
 import tldextract
 
-from src import logger
 from src.managers.models import Entry, Module, Vault
 from src.utils.generic import ensure_directory
+from src.utils.qt import image_to_label, set_pixmap_size
+from src import logger
 
 
 class WebModule(Module):
@@ -63,11 +64,10 @@ class WebModule(Module):
     def build_entry_widget(self, entry: Entry) -> QWidget:
         url = entry.reference
 
+        # TODO: fallback
         favicon_file = self.get_favicon(url)
-        favicon_pixmap = QPixmap(str(favicon_file))
-
-        favicon_label = QLabel()
-        favicon_label.setPixmap(favicon_pixmap)
+        favicon_label = image_to_label(favicon_file)
+        favicon_label.pixmap = set_pixmap_size(favicon_label.pixmap, 32)
 
         url_label = QLabel(url) # TODO: fazer ser editável aqui também?
 
