@@ -1,10 +1,10 @@
 from pathlib import Path
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPalette, QPixmap
 from PyQt6.QtCore import Qt
 
-from src.gui.widgets.components import SMALLER_FONT, set_secondary_text_palette
+from src.gui.widgets.components import SMALLER_FONT
 from src.utils.qt import image_to_pixmap, label_with_pixmap, set_pixmap_size
 
 from ...managers.models import Module, Vault, Entry
@@ -57,8 +57,7 @@ class LocalModule(Module):
         if details_text:
             details_label = QLabel(details_text)
             details_label.setFont(SMALLER_FONT)
-
-            set_secondary_text_palette(details_label)
+            details_label.setForegroundRole(QPalette.ColorRole.Mid)
 
             layout.addWidget(details_label)
 

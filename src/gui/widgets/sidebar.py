@@ -148,18 +148,23 @@ class GroupedForm(QWidget):
         # calcular uma cor semi-apagada
         # copiado do código fonte do kde dolphin
         palette = label.palette()
+
         text = palette.color(QPalette.ColorRole.Base)
         background = palette.color(QPalette.ColorRole.Text)
+
         factor_1 = 0.2
         factor_2 = 0.8
-        secondary = QColor(
+
+        color = QColor(
             round(text.red() * factor_1 + background.red() * factor_2),
             round(text.green() * factor_1 + background.green() * factor_2),
             round(text.blue() * factor_1 + background.blue() * factor_2)
         )
-        palette.setColor(QPalette.ColorRole.WindowText, secondary)
+
+        palette.setColor(QPalette.ColorRole.WindowText, color)
         label.setPalette(palette)
 
+        # retornar o label criado
         return label
 
     def register_label_row(self, key: str, value: str = '') -> QLabel:

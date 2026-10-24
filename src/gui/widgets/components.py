@@ -1,27 +1,6 @@
-from PyQt6.QtGui import QColor, QFont, QPalette
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
-
-def set_secondary_text_palette(source_widget: QWidget):
-    palette = source_widget.palette()
-
-    # calcular uma cor semi-apagada
-    # copiado do código fonte do kde dolphin
-    text = palette.color(QPalette.ColorRole.Text)
-    background = palette.color(QPalette.ColorRole.Base)
-
-    factor_1 = 0.2
-    factor_2 = 0.8
-
-    secondary = QColor(
-        round(text.red() * factor_1 + background.red() * factor_2),
-        round(text.green() * factor_1 + background.green() * factor_2),
-        round(text.blue() * factor_1 + background.blue() * factor_2)
-    )
-
-    # definir a cor na paleta
-    palette.setColor(QPalette.ColorRole.WindowText, secondary)
-    source_widget.setPalette(palette)
 
 def build_error_entry_widget(main_text: str = 'Entry not found', details_text: str | None = None) -> QWidget:
     """
