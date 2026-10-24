@@ -4,6 +4,8 @@ from pathlib import Path
 
 from src.gui.widgets.header import Header
 from src.gui.widgets.sidebar import Sidebar
+from src.managers.models import Entry
+
 
 class Central(QWidget):
     """
@@ -55,6 +57,23 @@ class Central(QWidget):
         self.qlist = ContentList() # TODO: mudar qlist pra content_list
         self.contents_layout.addWidget(self.qlist, 1)
 
+
+class EntryWidgetContainer:
+    def __init__(self, entry: Entry, entry_widget: QWidget):
+        self.entry = entry
+
+        self.container = QWidget()
+        self.container_layout = QVBoxLayout(self.container)
+
+        self.item = QListWidgetItem()
+        self.item.setData(Qt.ItemDataRole.UserRole, self.entry.id) # inserir os dados ocultos # TODO: testar guardando Entry inteira
+        self.item.setSizeHint(self.container.sizeHint()) # mudar o tamanho do item pra comportar o conteúdo
+
+    def add_to_qlistwidget(self, qlistwidget: QListWidget):
+        qlistwidget.addItem(self.item)
+        qlistwidget.setItemWidget(self.item, self.container)
+
+
 class ContentList(QListWidget):
     """
     lista de entries que permite selecionar múltiplos itens
@@ -80,6 +99,9 @@ class ContentList(QListWidget):
                 o widget já resolvido e construído da entry
                 fornecido pelo módulo responsável pela mesma
         """
+
+        external_container = QWidget()
+        external_container_layout = QVBoxLayout(external_container)
 
         container = QWidget()
         container_layout = QVBoxLayout(container)
