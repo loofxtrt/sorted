@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QComboBox, QGroupBox, QLineEdit, QPushButton, QWidget, QHBoxLayout, QVBoxLayout, QLabel
 
+from src.managers.models import Collection
+
 
 class Header(QWidget):
     """
@@ -18,7 +20,7 @@ class Header(QWidget):
         self.control_panel = self.compose_control_panel()
         layout.addWidget(self.control_panel)
 
-    def compose_info_panel(self) -> QWidget:
+    def compose_info_panel(self, collection: Collection) -> QWidget:
         """
         cria o painel de informações da collection
 
@@ -31,12 +33,13 @@ class Header(QWidget):
         group = QGroupBox('Collection')
         group_layout = QVBoxLayout(group)
 
+        # TODO: func pra atualizar essas labels sem reconstruir tudo
         # título fica em cima
-        title_label = QLabel('title')
+        title_label = QLabel(collection.name)
         group_layout.addWidget(title_label)
 
         # demais informações ficam em baixo
-        entry_count_label = QLabel('information')
+        entry_count_label = QLabel(str(collection.entry_count))
         group_layout.addWidget(entry_count_label)
 
         # grupo e retorno
