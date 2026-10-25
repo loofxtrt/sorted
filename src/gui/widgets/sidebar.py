@@ -128,7 +128,10 @@ class GroupedForm(QWidget):
         super().__init__(parent)
 
         group = QGroupBox(group_label)
-        self.form_layout = QFormLayout(group)
+        group_layout = QVBoxLayout(group)
+
+        self.form_layout = QFormLayout()
+        group_layout.addLayout(self.form_layout)
 
         self.widget_layout = QVBoxLayout(self)
         self.widget_layout.addWidget(group)

@@ -169,6 +169,7 @@ class MainWindow(QMainWindow):
 
         self.load_list_contents() # carregar o conteúdo pela primeira vez. TODO: fazer isso ser uma chamada pra func de mudar o scol, unificando o comportamento?
         self.central.sidebar.file_tree.set_focus(self.scol) # fazer a árvore focar no scol atual
+        self.central.header.update_info_panel(self.collection) # TODO: se o change collection fosse chamado no início em vez disso, não precisaria da duplicação
 
         # registrar todos os tipos disponíveis de entry no vault no dropdown
         # indica o módulo junto de cada tipo, assim como a command palette do obsidian
@@ -462,6 +463,7 @@ class MainWindow(QMainWindow):
         self.collection = Collection.from_file(self.scol)
         self.controller = Controller(self.collection) # tbm precisa ser atualizado
         #cache.write_last_collection(dest)
+        self.central.header.update_info_panel(self.collection) # atualizar o paínel de informações
 
         self.refresh()
 

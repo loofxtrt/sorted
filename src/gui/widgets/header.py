@@ -29,7 +29,7 @@ class Header(QWidget):
             o widget que contém o painel
         """
 
-        form = GroupedForm()
+        form = GroupedForm(group_label='Collection')
 
         self.name_label = QLabel()
         form.widget_layout.addWidget(self.name_label)
@@ -37,20 +37,23 @@ class Header(QWidget):
         self.entry_count_label = QLabel()
         form.register_label_row('Entries', self.entry_count_label)
 
-        self.collection_label = QLabel()
-        form.register_label_row('Created at', self.collection_label)
+        self.created_at_label = QLabel()
+        form.register_label_row('Created at', self.created_at_label)
 
-        if collection:
-            self.update_
+        self.update_info_panel(collection)
 
         return form
 
     def update_info_panel(self, collection: Collection | None = None):
-        def _set_value_or_empty(qlabel, value):
-            qlabel.setText(value)
-
-        self.name_label = QLabel(collection.name)
-        self.entry_count_label = str(collection.entry_count)
+        if collection:
+            self.name_label.setText(collection.name)
+            self.entry_count_label.setText(str(collection.entry_count))
+            self.created_at_label.setText(collection.created_at)
+        else:
+            empty = ''
+            self.name_label.setText(empty)
+            self.entry_count_label.setText(empty)
+            self.created_at_label.setText(empty)
 
 #         widget = QWidget()
 #         widget_layout = QVBoxLayout(widget)
