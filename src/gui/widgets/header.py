@@ -31,11 +31,17 @@ class Header(QWidget):
 
         form = GroupedForm()
 
+        if not collection:
+            return form
+
         name_label = QLabel(collection.name)
         form.widget_layout.addWidget(name_label)
 
         form.register_label_row('Entries', str(collection.entry_count))
         form.register_label_row('Created at', collection.created_at)
+
+        return form
+
 #         widget = QWidget()
 #         widget_layout = QVBoxLayout(widget)
 #         group = QGroupBox('Collection')
@@ -53,7 +59,7 @@ class Header(QWidget):
 #
 #         # grupo e retorno
 #         widget_layout.addWidget(group)
-        return widget
+        # return widget
 
     def compose_control_panel(self) -> QWidget:
         """
