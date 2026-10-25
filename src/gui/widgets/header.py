@@ -35,7 +35,7 @@ class Header(QWidget):
             o widget que contém o painel
         """
 
-        form = GroupedForm(group_label='Collection')
+        form = GroupedForm(group_label='No collection open')
 
         # self.name_label = QLabel()
         # form.widget_layout.addWidget(self.name_label)
@@ -62,7 +62,7 @@ class Header(QWidget):
         """
 
         if collection:
-            self.info_panel.group.setTitle(f'Collection — {collection.name}')
+            self.info_panel.group.setTitle(collection.name)
             # self.name_label.setText(collection.name)
             self.entry_count_label.setText(str(collection.entry_count))
             self.created_at_label.setText(collection.created_at)
