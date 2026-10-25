@@ -1,4 +1,5 @@
-from PyQt6.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget, QHBoxLayout, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import QComboBox, QGroupBox, QLineEdit, QPushButton, QWidget, QHBoxLayout, QVBoxLayout, QLabel
+
 
 class Header(QWidget):
     """
@@ -9,7 +10,7 @@ class Header(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        layout = QHBoxLayout(self)
+        layout = QVBoxLayout(self)
 
         self.info_panel = self.compose_info_panel()
         layout.addWidget(self.info_panel)
@@ -19,30 +20,33 @@ class Header(QWidget):
 
     def compose_info_panel(self) -> QWidget:
         """
-        cria o painel de informações, com o título em cima e as demais informações embaixo
+        cria o painel de informações da collection
 
         returns:
             o widget que contém o painel
         """
 
         widget = QWidget()
+        widget_layout = QVBoxLayout(widget)
+        group = QGroupBox('Collection')
+        group_layout = QVBoxLayout(group)
 
         # título fica em cima
         title_label = QLabel('title')
-
-        layout = QVBoxLayout(widget)
-        layout.addWidget(title_label)
+        group_layout.addWidget(title_label)
 
         # demais informações ficam em baixo
         entry_count_label = QLabel('information')
-        layout.addWidget(entry_count_label)
+        group_layout.addWidget(entry_count_label)
 
+        # grupo e retorno
+        widget_layout.addWidget(group)
         return widget
 
     def compose_control_panel(self) -> QWidget:
         """
-        cria o painel de controles, com o input de referência, o dropdown de tipo
-        e os botões de inserir e remover
+        cria o painel de controles
+        ex.: input de referece, dropdown de tipo, botões de inserir e remover etc.
 
         returns:
             o widget que contém o painel
