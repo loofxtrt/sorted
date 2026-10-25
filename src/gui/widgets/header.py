@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QComboBox, QGroupBox, QLineEdit, QPushButton, QWidget, QHBoxLayout, QVBoxLayout, QLabel
 
+from src.gui.widgets.components import BIGGER_FONT
 from src.gui.widgets.sidebar import GroupedForm
 from src.managers.models import Collection
 
@@ -39,6 +40,7 @@ class Header(QWidget):
         widget_layout = QVBoxLayout(widget)
 
         self.name_label = QLabel()
+        self.name_label.setFont(BIGGER_FONT)
         form = GroupedForm()
         # form = GroupedForm(group_label='No collection open')
 
