@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QComboBox, QGroupBox, QLineEdit, QPushButton, QWidget, QHBoxLayout, QVBoxLayout, QLabel
 
+from src.gui.widgets.sidebar import GroupedForm
 from src.managers.models import Collection
 
 
@@ -20,7 +21,7 @@ class Header(QWidget):
         self.control_panel = self.compose_control_panel()
         layout.addWidget(self.control_panel)
 
-    def compose_info_panel(self, collection: Collection) -> QWidget:
+    def compose_info_panel(self, collection: Collection | None = None) -> QWidget:
         """
         cria o painel de informações da collection
 
@@ -28,22 +29,30 @@ class Header(QWidget):
             o widget que contém o painel
         """
 
-        widget = QWidget()
-        widget_layout = QVBoxLayout(widget)
-        group = QGroupBox('Collection')
-        group_layout = QVBoxLayout(group)
+        form = GroupedForm()
 
-        # TODO: func pra atualizar essas labels sem reconstruir tudo
-        # título fica em cima
-        title_label = QLabel(collection.name)
-        group_layout.addWidget(title_label)
+        name_label = QLabel(collection.name)
+        form.widget_layout.addWidget(name_label)
 
-        # demais informações ficam em baixo
-        entry_count_label = QLabel(str(collection.entry_count))
-        group_layout.addWidget(entry_count_label)
-
-        # grupo e retorno
-        widget_layout.addWidget(group)
+        form.register_label_row('Entries', str(collection.entry_count))
+        form.register_label_row('Created at', collection.created_at)
+#         widget = QWidget()
+#         widget_layout = QVBoxLayout(widget)
+#         group = QGroupBox('Collection')
+#         group_layout = QVBoxLayout(group)
+#
+#
+#         # TODO: func pra atualizar essas labels sem reconstruir tudo
+#         # título fica em cima
+#         title_label = QLabel(collection.name)
+#         group_layout.addWidget(title_label)
+#
+#         # demais informações ficam em baixo
+#         entry_count_label = QLabel(str(collection.entry_count))
+#         group_layout.addWidget(entry_count_label)
+#
+#         # grupo e retorno
+#         widget_layout.addWidget(group)
         return widget
 
     def compose_control_panel(self) -> QWidget:

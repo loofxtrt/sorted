@@ -130,9 +130,9 @@ class GroupedForm(QWidget):
         group = QGroupBox(group_label)
         self.form_layout = QFormLayout(group)
 
-        layout = QVBoxLayout(self)
-        layout.addWidget(group)
-        layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
+        self.widget_layout = QVBoxLayout(self)
+        self.widget_layout.addWidget(group)
+        self.widget_layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
 
     def compose_key_label(self, key: str) -> QLabel:
         """
