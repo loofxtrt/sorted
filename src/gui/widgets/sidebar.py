@@ -127,14 +127,14 @@ class GroupedForm(QWidget):
     def __init__(self, parent=None, group_label: str = ''):
         super().__init__(parent)
 
-        group = QGroupBox(group_label)
-        group_layout = QVBoxLayout(group)
+        self.group = QGroupBox(group_label)
+        self.group_layout = QVBoxLayout(self.group)
 
         self.form_layout = QFormLayout()
-        group_layout.addLayout(self.form_layout)
+        self.group_layout.addLayout(self.form_layout)
 
         self.widget_layout = QVBoxLayout(self)
-        self.widget_layout.addWidget(group)
+        self.widget_layout.addWidget(self.group)
         self.widget_layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
 
     def _compose_key_label(self, key: str) -> QLabel:

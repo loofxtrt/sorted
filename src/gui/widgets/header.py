@@ -21,9 +21,15 @@ class Header(QWidget):
         self.control_panel = self.compose_control_panel()
         layout.addWidget(self.control_panel)
 
-    def compose_info_panel(self, collection: Collection | None = None) -> QWidget:
+    def compose_info_panel(self, collection: Collection | None = None) -> GroupedForm:
         """
-        cria o painel de informações da collection
+        cria o painel de informações da collection, com a quantidade de entries e a data de criação
+        os valores são preenchidos por update_info_panel
+
+        args:
+            collection:
+                collection cujas informações serão exibidas
+                se for None, o painel começa vazio
 
         returns:
             o widget que contém o painel
@@ -31,8 +37,8 @@ class Header(QWidget):
 
         form = GroupedForm(group_label='Collection')
 
-        self.name_label = QLabel()
-        form.widget_layout.addWidget(self.name_label)
+        # self.name_label = QLabel()
+        # form.widget_layout.addWidget(self.name_label)
 
         self.entry_count_label = QLabel()
         form.register_label_row('Entries', self.entry_count_label)
@@ -45,13 +51,24 @@ class Header(QWidget):
         return form
 
     def update_info_panel(self, collection: Collection | None = None):
+        """
+        atualiza o painel de informações com os dados de uma collection
+        o título do grupo passa a mostrar o nome da collection
+
+        args:
+            collection:
+                collection cujas informações serão exibidas
+                se for None, os valores do painel são limpos
+        """
+
         if collection:
-            self.name_label.setText(collection.name)
+            self.info_panel.group.setTitle(f'Collection — {collection.name}')
+            # self.name_label.setText(collection.name)
             self.entry_count_label.setText(str(collection.entry_count))
             self.created_at_label.setText(collection.created_at)
         else:
             empty = ''
-            self.name_label.setText(empty)
+            # self.name_label.setText(empty)
             self.entry_count_label.setText(empty)
             self.created_at_label.setText(empty)
 
