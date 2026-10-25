@@ -21,7 +21,7 @@ class Header(QWidget):
         self.control_panel = self.compose_control_panel()
         layout.addWidget(self.control_panel)
 
-    def compose_info_panel(self, collection: Collection | None = None) -> GroupedForm:
+    def compose_info_panel(self, collection: Collection | None = None) -> QWidget:
         """
         cria o painel de informações da collection, com a quantidade de entries e a data de criação
         os valores são preenchidos por update_info_panel
@@ -35,7 +35,12 @@ class Header(QWidget):
             o widget que contém o painel
         """
 
-        form = GroupedForm(group_label='No collection open')
+        widget = QWidget()
+        widget_layout = QVBoxLayout(widget)
+
+        self.name_label = QLabel()
+        form = GroupedForm()
+        # form = GroupedForm(group_label='No collection open')
 
         # self.name_label = QLabel()
         # form.widget_layout.addWidget(self.name_label)
@@ -46,9 +51,29 @@ class Header(QWidget):
         self.created_at_label = QLabel()
         form.register_label_row('Created at', self.created_at_label)
 
+        # composição
+        widget_layout.addWidget(self.name_label) # fora do form pra ficar em cima dele
+        widget_layout.addWidget(form)
+
+        # atualização
         self.update_info_panel(collection)
 
-        return form
+        return widget
+
+#         form = GroupedForm(group_label='No collection open')
+#
+#         # self.name_label = QLabel()
+#         # form.widget_layout.addWidget(self.name_label)
+#
+#         self.entry_count_label = QLabel()
+#         form.register_label_row('Entries', self.entry_count_label)
+#
+#         self.created_at_label = QLabel()
+#         form.register_label_row('Created at', self.created_at_label)
+#
+#         self.update_info_panel(collection)
+#
+#         return form
 
     def update_info_panel(self, collection: Collection | None = None):
         """
@@ -62,34 +87,15 @@ class Header(QWidget):
         """
 
         if collection:
-            self.info_panel.group.setTitle(collection.name)
-            # self.name_label.setText(collection.name)
+            # self.info_panel.group.setTitle(collection.name)
+            self.name_label.setText(collection.name)
             self.entry_count_label.setText(str(collection.entry_count))
             self.created_at_label.setText(collection.created_at)
         else:
             empty = ''
-            # self.name_label.setText(empty)
+            self.name_label.setText(empty)
             self.entry_count_label.setText(empty)
             self.created_at_label.setText(empty)
-
-#         widget = QWidget()
-#         widget_layout = QVBoxLayout(widget)
-#         group = QGroupBox('Collection')
-#         group_layout = QVBoxLayout(group)
-#
-#
-#         # TODO: func pra atualizar essas labels sem reconstruir tudo
-#         # título fica em cima
-#         title_label = QLabel(collection.name)
-#         group_layout.addWidget(title_label)
-#
-#         # demais informações ficam em baixo
-#         entry_count_label = QLabel(str(collection.entry_count))
-#         group_layout.addWidget(entry_count_label)
-#
-#         # grupo e retorno
-#         widget_layout.addWidget(group)
-        # return widget
 
     def compose_control_panel(self) -> QWidget:
         """
