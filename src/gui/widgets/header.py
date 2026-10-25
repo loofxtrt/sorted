@@ -31,16 +31,26 @@ class Header(QWidget):
 
         form = GroupedForm()
 
-        if not collection:
-            return form
+        self.name_label = QLabel()
+        form.widget_layout.addWidget(self.name_label)
 
-        name_label = QLabel(collection.name)
-        form.widget_layout.addWidget(name_label)
+        self.entry_count_label = QLabel()
+        form.register_label_row('Entries', self.entry_count_label)
 
-        form.register_label_row('Entries', str(collection.entry_count))
-        form.register_label_row('Created at', collection.created_at)
+        self.collection_label = QLabel()
+        form.register_label_row('Created at', self.collection_label)
+
+        if collection:
+            self.update_
 
         return form
+
+    def update_info_panel(self, collection: Collection | None = None):
+        def _set_value_or_empty(qlabel, value):
+            qlabel.setText(value)
+
+        self.name_label = QLabel(collection.name)
+        self.entry_count_label = str(collection.entry_count)
 
 #         widget = QWidget()
 #         widget_layout = QVBoxLayout(widget)

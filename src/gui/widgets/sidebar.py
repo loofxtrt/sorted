@@ -134,7 +134,7 @@ class GroupedForm(QWidget):
         self.widget_layout.addWidget(group)
         self.widget_layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
 
-    def compose_key_label(self, key: str) -> QLabel:
+    def _compose_key_label(self, key: str) -> QLabel:
         """
         cria um label padronizado pra ser o rótulo de um row de um formulário
 
@@ -167,7 +167,7 @@ class GroupedForm(QWidget):
         # retornar o label criado
         return label
 
-    def register_label_row(self, key: str, value: str = '') -> QLabel:
+    def register_label_row(self, key: str, value: str | QLabel = '') -> QLabel:
         """
         registra um row de label no formulário
 
@@ -177,14 +177,18 @@ class GroupedForm(QWidget):
                 não é igual à chave do json, é só o texto visual do rótulo
 
             value:
-                valor do row
+                valor do row como string ou qlabel pronta
 
         returns:
             o widget que contém o valor do row
         """
 
-        key_label = self.compose_key_label(key)
-        value_label = QLabel(value)
+        key_label = self._compose_key_label(key)
+
+        if isinstance(value, QLabel):
+            value_label = value
+        else:
+            value_label = QLabel(value)
 
         self.form_layout.addRow(key_label, value_label)
 
@@ -233,7 +237,7 @@ class GroupedForm(QWidget):
             input.textEdited.connect(input_row_changed_callback)
 
         # adicionar o input criado no layout e retornar ele
-        self.form_layout.addRow(self.compose_key_label(key), input)
+        self.form_layout.addRow(self._compose_key_label(key), input)
 
         return input
 
