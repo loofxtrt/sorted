@@ -94,20 +94,13 @@ class Inspector(QWidget):
         """
 
         # atualizar os labels que exibem os dados
+        # TODO: passar isso pra ser uma func do MetadataForm
         self.metadata_form.label_id.setText(entry.id)
         self.metadata_form.label_type.setText(entry.type)
         self.metadata_form.label_created_at.setText(entry.created_at)
         self.metadata_form.input_reference.setText(entry.reference)
 
-        self.fields_form.clear() # limpar o formulário antigo antes de reconstruir
-
-        # obtém os fields que a entry tem e registra cada um
-        # com um label pra chave e um input pro valor
-        for key, value in entry.fields.items():
-            self.fields_form.register_input_row(key, value)
-
-        # botão de field novo
-        self.fields_form.register_button_row('New field')
+        self.fields_form.set_entry(entry)
 
 class GroupedForm(QWidget):
     """
@@ -138,8 +131,6 @@ class GroupedForm(QWidget):
         self.widget_layout.addWidget(self.group)
         self.widget_layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
 
-        self.windows = {}
-
     def _compose_key_label(self, key: str) -> QLabel:
         """
         cria um label padronizado pra ser o rótulo de um row de um formulário
@@ -147,6 +138,8 @@ class GroupedForm(QWidget):
         returns:
             o label criado
         """
+
+        # TODO: documentação
 
         label = QLabel(key)
         # label.setForegroundRole(QPalette.ColorRole.PlaceholderText) # cor semi-apagada
@@ -234,17 +227,6 @@ class GroupedForm(QWidget):
             input.setValue(value)
 
             input.valueChanged.connect(input_row_changed_callback)
-        elif isinstance(value, list):
-            # inspirado no sistema de edição de tags do kde dolphin
-            # TODO: fazer uma versão melhorada inspirada nas tags do obsidian
-            # TODO: documentação
-            if key not in self.windows:
-                self.windows[key] = TagWindow()
-
-            window = self.windows[key]
-
-            input = QPushButton('Edit')
-            input.clicked.connect(window.show)
         else:
             if value is not None:
                 input.setText(str(value))
@@ -283,8 +265,42 @@ class MetadataForm(GroupedForm):
 
 class FieldsForm(GroupedForm):
     # TODO: documentação
-    def __init__(self, parent=None, group_label: str = 'Fields'):
+    def __init__(self, parent=None, entry: Entry | None = None, group_label: str = 'Fields'):
         super().__init__(parent, group_label)
+
+        self.windows = {}
+        self.entry = entry
+
+    def set_entry(self, entry: Entry):
+        self.clear() # limpar o formulário antigo antes de reconstruir
+        self.entry = entry
+
+        # obtém os fields que a entry tem e registra cada um
+        # com um label pra chave e um input pro valor
+        for key, value in entry.fields.items():
+            self.register_input_row(key, value)
+
+        # botão de field novo
+        self.register_button_row('New field')
+
+    def register_input_row(self, key: str, value = None):
+        if self.entry and isinstance(value, list):
+            # inspirado no sistema de edição de tags do kde dolphin
+            # TODO: fazer uma versão melhorada inspirada nas tags do obsidian
+            # TODO: documentação
+            if key not in self.windows:
+                self.windows[key] = TagWindow(self.entry)
+
+            window = self.windows[key]
+
+            input = QPushButton('Edit')
+            input.clicked.connect(window.show)
+
+            self.form_layout.addRow(self._compose_key_label(key), input)
+
+            return input
+        else:
+            return super().register_input_row(key, value)
 
 class FileTree(QWidget):
     """

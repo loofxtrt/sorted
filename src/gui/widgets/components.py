@@ -1,11 +1,13 @@
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QWidget
 
+from src.managers.models import Entry
+
 
 class TagWindow(QWidget):
     # TODO
     # TODO: documentação
-    def __init__(self, parent = None) -> None:
+    def __init__(self, entry: Entry, parent = None) -> None:
         super().__init__(parent)
 
         self.setWindowTitle('Tags')
@@ -18,6 +20,8 @@ class TagWindow(QWidget):
         layout.addWidget(content)
 
         self.tag_list = QListWidget()
+        for t in entry.fields.get('tags', []):
+            self.register_tag_item(str(t))
 
         actions = QWidget()
         actions_layout = QHBoxLayout(actions)
