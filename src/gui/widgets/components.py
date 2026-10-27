@@ -23,14 +23,28 @@ class TagWindow(QWidget):
         for t in entry.fields.get('tags', []):
             self.register_tag_item(str(t))
 
+        insert = QWidget()
+        insert_layout = QVBoxLayout(insert)
+        self.button_insert = QPushButton('Insert new tag')
+        insert_layout.addWidget(self.button_insert)
+        self._register_widget_item(insert)
+
         actions = QWidget()
         actions_layout = QHBoxLayout(actions)
-        self.save = QPushButton('Save')
-        self.cancel = QPushButton('Cancel')
-        actions_layout.addWidget(self.save)
-        actions_layout.addWidget(self.cancel)
+        self.button_save = QPushButton('Save')
+        self.button_cancel = QPushButton('Cancel')
+        actions_layout.addWidget(self.button_save)
+        actions_layout.addWidget(self.button_cancel)
 
+        content_layout.addWidget(self.tag_list)
         content_layout.addWidget(actions)
+
+    def _register_widget_item(self, widget: QWidget):
+        item = QListWidgetItem()
+        item.setSizeHint(widget.sizeHint())
+
+        self.tag_list.addItem(item)
+        self.tag_list.setItemWidget(item, widget)
 
     def register_tag_item(self, tag: str):
         tag_widget = QWidget()
@@ -39,11 +53,7 @@ class TagWindow(QWidget):
         tag_layout.addWidget(QCheckBox())
         tag_layout.addWidget(QLabel(tag))
 
-        item = QListWidgetItem()
-        item.setSizeHint(tag_widget.sizeHint())
-
-        self.tag_list.addItem(item)
-        self.tag_list.setItemWidget(item, tag_widget)
+        self._register_widget_item(tag_widget)
 
 
 def build_error_entry_widget(main_text: str = 'Entry not found', details_text: str | None = None) -> QWidget:
