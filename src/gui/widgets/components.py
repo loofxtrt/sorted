@@ -1,5 +1,26 @@
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+
+
+class TagWindow(QWidget):
+    # TODO
+    # TODO: documentação
+    def __init__(self, parent = None) -> None:
+        super().__init__(parent)
+
+        self.setWindowTitle('Tags')
+        self.resize(400, 300)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self)
+
+        actions = QWidget()
+        actions_layout = QHBoxLayout(actions)
+        self.save = QPushButton('Save')
+        self.cancel = QPushButton('Cancel')
+        actions_layout.addWidget(self.save)
+        actions_layout.addWidget(self.cancel)
+        layout.addWidget(actions)
 
 
 def build_error_entry_widget(main_text: str = 'Entry not found', details_text: str | None = None) -> QWidget:

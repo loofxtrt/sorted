@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QCheckBox, QDoubleSpinBox, QFormLayout, QGroupBox, Q
 from PyQt6.QtGui import QColor, QFileSystemModel, QPalette
 from PyQt6.QtCore import QSignalBlocker, Qt, pyqtSignal
 
+from src.gui.widgets.components import TagWindow
 from src.managers.models import Entry
 
 class Sidebar(QWidget):
@@ -200,7 +201,7 @@ class GroupedForm(QWidget):
     def register_input_row(
         self,
         key: str,
-        value: type[str] | type[bool] | type[numbers.Number] | None = None
+        value: type[str] | type[bool] | type[numbers.Number] | type[list] | None = None
     ) -> QLineEdit | QDoubleSpinBox | QCheckBox:
         """
         registra um row editável no formulário
@@ -231,6 +232,13 @@ class GroupedForm(QWidget):
             input.setValue(value)
 
             input.valueChanged.connect(input_row_changed_callback)
+        elif isinstance(value, list):
+            # inspirado no sistema de edição de tags do kde dolphin
+            # TODO: fazer uma versão melhorada inspirada nas tags do obsidian
+            window = TagWindow()
+            window.show()
+
+            input = QPushButton('Edit')
         else:
             if value is not None:
                 input.setText(str(value))
