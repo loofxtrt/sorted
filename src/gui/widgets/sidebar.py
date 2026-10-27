@@ -138,6 +138,8 @@ class GroupedForm(QWidget):
         self.widget_layout.addWidget(self.group)
         self.widget_layout.addStretch() # elementos começam de cima em vez de serem centralizados verticalmente
 
+        self.windows = {}
+
     def _compose_key_label(self, key: str) -> QLabel:
         """
         cria um label padronizado pra ser o rótulo de um row de um formulário
@@ -235,10 +237,13 @@ class GroupedForm(QWidget):
         elif isinstance(value, list):
             # inspirado no sistema de edição de tags do kde dolphin
             # TODO: fazer uma versão melhorada inspirada nas tags do obsidian
-            window = TagWindow()
-            window.show()
+            if key not in self.windows:
+                self.windows[key] = TagWindow()
+
+            window = self.windows[key]
 
             input = QPushButton('Edit')
+            input.clicked.connect(window.show)
         else:
             if value is not None:
                 input.setText(str(value))

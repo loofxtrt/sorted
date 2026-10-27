@@ -11,8 +11,11 @@ class TagWindow(QWidget):
         self.setWindowTitle('Tags')
         self.resize(400, 300)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self)
+        layout = QVBoxLayout(self)
+
+        content = QWidget()
+        content_layout = QVBoxLayout(content)
+        layout.addWidget(content)
 
         actions = QWidget()
         actions_layout = QHBoxLayout(actions)
@@ -20,7 +23,7 @@ class TagWindow(QWidget):
         self.cancel = QPushButton('Cancel')
         actions_layout.addWidget(self.save)
         actions_layout.addWidget(self.cancel)
-        layout.addWidget(actions)
+        content_layout.addWidget(actions)
 
 
 def build_error_entry_widget(main_text: str = 'Entry not found', details_text: str | None = None) -> QWidget:
