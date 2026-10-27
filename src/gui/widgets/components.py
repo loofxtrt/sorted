@@ -33,18 +33,19 @@ class TagWindow(QWidget):
         create_tag_layout.addWidget(self.input_create_tag)
         create_tag_layout.addWidget(self.button_create_tag)
         self._register_widget_item(create_tag)
+        self.button_create_tag.clicked.connect(lambda: self.action_create_tag(self.input_create_tag.text(), entry))
 
-        actions = QWidget()
-        actions_layout = QHBoxLayout(actions)
-
-        self.button_cancel = QPushButton('Cancel')
-        actions_layout.addWidget(self.button_cancel)
-
-        self.button_save = QPushButton('Save')
-        actions_layout.addWidget(self.button_save)
+#         actions = QWidget()
+#         actions_layout = QHBoxLayout(actions)
+#
+#         self.button_cancel = QPushButton('Cancel')
+#         actions_layout.addWidget(self.button_cancel)
+#
+#         self.button_save = QPushButton('Save')
+#         actions_layout.addWidget(self.button_save)
 
         controls_layout.addWidget(create_tag)
-        controls_layout.addWidget(actions)
+        # controls_layout.addWidget(actions)
 
         content_layout.addWidget(self.tag_list)
         content_layout.addWidget(controls)
@@ -65,6 +66,14 @@ class TagWindow(QWidget):
 
         self._register_widget_item(tag_widget)
 
+    def action_create_tag(self, tag: str, entry: Entry):
+        tags = entry.fields.get('tags', [])
+        tags.append(tag)
+        entry.fields['tags'] = tags
+        self.register_tag_item(tag) # memória. TODO: decidir se isso ou recarregar o do disco
+        # TODO: collection save state
+        # TODO: remover item vazio no inicio
+        # TODO: segurança de tags repetidas
 
 def build_error_entry_widget(main_text: str = 'Entry not found', details_text: str | None = None) -> QWidget:
     """

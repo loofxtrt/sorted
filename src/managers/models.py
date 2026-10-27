@@ -100,6 +100,7 @@ class Vault:
 #         return self.context / normalize_json_file('cache')
 
 
+# TODO: func de add to field
 @dataclass
 class Entry:
     """
