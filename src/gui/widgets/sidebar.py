@@ -237,6 +237,7 @@ class GroupedForm(QWidget):
         elif isinstance(value, list):
             # inspirado no sistema de edição de tags do kde dolphin
             # TODO: fazer uma versão melhorada inspirada nas tags do obsidian
+            # TODO: documentação
             if key not in self.windows:
                 self.windows[key] = TagWindow()
 
