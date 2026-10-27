@@ -1,5 +1,5 @@
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QWidget
 
 from src.managers.models import Entry
 
@@ -23,21 +23,31 @@ class TagWindow(QWidget):
         for t in entry.fields.get('tags', []):
             self.register_tag_item(str(t))
 
-        insert = QWidget()
-        insert_layout = QVBoxLayout(insert)
-        self.button_insert = QPushButton('Insert new tag')
-        insert_layout.addWidget(self.button_insert)
-        self._register_widget_item(insert)
+        controls = QWidget()
+        controls_layout = QVBoxLayout(controls)
+
+        create_tag = QWidget()
+        create_tag_layout = QHBoxLayout(create_tag)
+        self.button_create_tag = QPushButton('+')
+        self.input_create_tag = QLineEdit()
+        create_tag_layout.addWidget(self.input_create_tag)
+        create_tag_layout.addWidget(self.button_create_tag)
+        self._register_widget_item(create_tag)
 
         actions = QWidget()
         actions_layout = QHBoxLayout(actions)
-        self.button_save = QPushButton('Save')
+
         self.button_cancel = QPushButton('Cancel')
-        actions_layout.addWidget(self.button_save)
         actions_layout.addWidget(self.button_cancel)
 
+        self.button_save = QPushButton('Save')
+        actions_layout.addWidget(self.button_save)
+
+        controls_layout.addWidget(create_tag)
+        controls_layout.addWidget(actions)
+
         content_layout.addWidget(self.tag_list)
-        content_layout.addWidget(actions)
+        content_layout.addWidget(controls)
 
     def _register_widget_item(self, widget: QWidget):
         item = QListWidgetItem()
